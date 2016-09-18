@@ -1,1 +1,1 @@
-# lexathon_mars
+# lexathon-mips
