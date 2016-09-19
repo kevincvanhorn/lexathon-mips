@@ -1,3 +1,8 @@
+//Author(s): Kevin van Horn
+//           Nishant Gurrapadi
+//           Thach Ngo
+//CS3340.501
+
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -103,7 +108,6 @@ void printBoard(char arr[])
    {
       //cout << i + 1; IGNORE
       cout << "| " << arr[i] << " | ";
-
       if ( line % 3 == 0)
       {
          cout << "\n";
