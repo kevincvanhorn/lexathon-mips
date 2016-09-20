@@ -1,7 +1,10 @@
-//Author(s): Kevin van Horn
-//           Nishant Gurrapadi
-//           Thach Ngo
-//CS3340.501
+//Author(s):  Kevin van Horn
+//            Nishant Gurrapadi
+//            Thach Ngo
+//Prof:       Nhut Nguyen
+//Assignment: Lexathon Project
+//Class:      CS3340.501/ Computer Architecture
+//Due:        1 December, 2016
 
 #include <iostream>
 #include <fstream>
