@@ -25,6 +25,7 @@ void printInstructions();
 void populateBoard(char arr[]);
 void printBoard(char arr[]);
 void startGame(char arr[]);
+bool checkInput(char arr[], char input[]);
 const int ARRAY_SIZE = 9;
 
 int main()
@@ -100,6 +101,7 @@ void populateBoard(char arr[])
       }
    }
 }
+
 // Print board
 void printBoard(char arr[]) 
 {
@@ -116,21 +118,92 @@ void printBoard(char arr[])
    }
 }
 
+// Starts the game
 void startGame(char arr[])
 {
    char input[9];
+
+   
    do
    {
+      // initialize array with character zero
+      for (int i = 0; i < sizeof(input); i++)
+      {
+         input[i] = '0';
+      }
+      // print board
       populateBoard(arr);
       printBoard(arr);
       cout << "1) Instructions" << endl
-         << "2) Quit" << endl;
+         << "2) Give Up" << endl;
       cout << "Enter word:" << endl;
+      
       cin >> input;
       if (input[0] == '1')
       {
          printInstructions();
       }
+      
+      int index = 0;
+      int inputLength = 0;
+      while (input[index] != '0')
+      {
+         ++inputLength;
+         ++index;
+         cout << inputLength - 1;
+      }
+      cout << " Input length is " << inputLength - 1 << endl;
+      cout << endl;
+
+      bool inputIsValid = checkInput(arr, input);
+      if (inputIsValid == true)
+      {
+         continue;
+      }
+      else if(inputIsValid == false)
+      {
+         cout << endl << "INVALID ANSWER" << endl;
+         input[0] = '2';
+      }
 
    } while (input[0] != '2');
+}
+
+// check input to see if each tile is used only once
+// or if the correct tiles were used at all
+bool checkInput(char arr[], char input[])
+{
+   char letterArrayCopy[9];
+   cout << "copying array...";
+   for (int i = 0; i < 9; ++i)
+   {
+      letterArrayCopy[i] = arr[i];
+      
+      cout << letterArrayCopy[i];
+   }
+   cout << endl;
+   
+   // set beginning to middle letter
+   int boardIndex = 5;
+   for (int i = 0; i < 9; )
+   {
+      boardIndex = boardIndex % 9;
+      
+      // If input's first letter does not match with 
+      // middle letter continue to next position 
+      // in input array until the character if found
+      // If central letter is found return true
+      // If central letter is not found the function
+      // returns false
+      if (arr[boardIndex] != input[i])
+      {
+         ++i;
+      }
+      else if (arr[boardIndex] == input[i] )
+      {
+         arr[boardIndex] = 0;
+         return true;
+      }
+   }
+   return false;
 }
