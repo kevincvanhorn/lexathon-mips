@@ -10,6 +10,8 @@
 #include <fstream>
 #include <iomanip>
 #include <random>
+#include <string>
+
 using namespace std;
 // Lexathon is a word game where you must find as many word
 // of four or more letters in the alloted time
@@ -24,54 +26,63 @@ using namespace std;
 // and how quickly words are found
 // so find as many words as quickly as possible.
 
+void printMenu();
 void printInstructions();
-void populateBoard(char arr[]);
-void printBoard(char arr[]);
-void startGame(char arr[]);
-bool checkInput(char arr[], char input[]);
+void randomizeBoard(char gameTable[]);
+void printBoard(char gameTable[]);
+void startGame(char gameTable[]);
+bool checkMiddle(char gameTable[], char input[], int inputLength);
+int checkDictionary(char input[], int inputLength);
+
 const int ARRAY_SIZE = 9;
 
 int main()
 {
+
+   printMenu();
+   system("pause");
+   return 0;
+}
+
+void printMenu()
+{
    // Variable holds user input
    int choice;
    // Array holds random letters for board
-   char letterArray[ARRAY_SIZE];
-   
+   char gameTable[ARRAY_SIZE];
+
    // Menu
    cout << "Welcome to Lexathon!\n\n";
 
    cout << "1) Start the game\n";
    cout << "2) Instructions\n";
    cout << "3) Exit\n";
-      
+   
+   // Input choice
    cin >> choice;
-   while(choice != 3)
+   while (choice != 3)
    {
-     if (choice == 1)
-     {
-         startGame(letterArray);
-     }
-     else if (choice == 2) 
-     {
+      if (choice == 1)
+      {
+         startGame(gameTable);
+      }
+      else if (choice == 2)
+      {
          printInstructions();
-     }
-     else if (choice == 3)
-     {
+      }
+      else if (choice == 3)
+      {
          break;
-     }
+      }
 
       cout << "1) Start the game\n";
       cout << "2) Instructions\n";
       cout << "3) Exit\n";
       cin >> choice;
-    }
-
-   system("pause");
-   return 0;
+   }
 }
 
-//  prints out instructions
+// Print out instructions
 void printInstructions()
 {
 
@@ -90,14 +101,13 @@ void printInstructions()
    return;
 }
 
-
 // Generate random letters for table
-void populateBoard(char arr[])
+void randomizeBoard(char gameTable[])
 {
    for (int index = 0; index < ARRAY_SIZE; ++index)
    {
-      arr[index] = 65 + rand() % 26;
-      //cout << arr[index] << " "; IGNORE this is test code
+      gameTable[index] = 65 + rand() % 26;
+      
       if (index + 1 % 3 == 0) 
       {
          cout << endl;
@@ -106,13 +116,12 @@ void populateBoard(char arr[])
 }
 
 // Print board
-void printBoard(char arr[]) 
+void printBoard(char gameTable[]) 
 {
    int line = 1;
    for (int i = 0; i < ARRAY_SIZE; ++i)
    {
-      //cout << i + 1; IGNORE
-      cout << "| " << arr[i] << " | ";
+      cout << "| " << gameTable[i] << " | ";
       if ( line % 3 == 0)
       {
          cout << "\n";
@@ -122,91 +131,141 @@ void printBoard(char arr[])
 }
 
 // Starts the game
-void startGame(char arr[])
+void startGame(char gameTable[])
 {
-   char input[9];
-
+   char playerAnswer[9]; // array holds player input
+   int score = 0;
+   
+   randomizeBoard(gameTable);
    
    do
    {
-      // initialize array with character zero
-      for (int i = 0; i < sizeof(input); i++)
+      // initialize array
+      for (int i = 0; i < sizeof(playerAnswer); i++)
       {
-         input[i] = '0';
+         playerAnswer[i] = '0';
       }
       // print board
-      populateBoard(arr);
-      printBoard(arr);
+      printBoard(gameTable);
+      cout << "Score: " << score << endl;
       cout << "1) Instructions" << endl
-         << "2) Give Up" << endl;
-      cout << "Enter word:" << endl;
-      
-      cin >> input;
-      if (input[0] == '1')
+         << "2) Shuffle" << endl
+         << "3) Give Up" << endl
+         << "Enter word:" << endl;
+      // get player's answer
+      cin >> playerAnswer;
+      if (playerAnswer[0] == '1')
       {
          printInstructions();
       }
-      
+      else if (playerAnswer[0] == '2')
+      {
+         randomizeBoard(gameTable);
+      }
+      // find answer's length
       int index = 0;
       int inputLength = 0;
-      while (input[index] != '0')
+      while (playerAnswer[index] != '0')
       {
          ++inputLength;
          ++index;
          cout << inputLength - 1;
       }
-      cout << " Input length is " << inputLength - 1 << endl;
+      inputLength = inputLength - 1;
+      cout << "Input length is " << inputLength << endl;
+      cout << "Player anwser is: " << playerAnswer[0] << playerAnswer[1] << endl;
       cout << endl;
-
-      bool inputIsValid = checkInput(arr, input);
+      
+      // Check if answer is valid
+      bool inputIsValid = checkMiddle(gameTable, playerAnswer, inputLength);
+      
+      // If input valid add score, else try again
       if (inputIsValid == true)
       {
-         continue;
+         score = score + checkDictionary(playerAnswer, inputLength);
       }
       else if(inputIsValid == false)
       {
-         cout << endl << "INVALID ANSWER" << endl;
-         input[0] = '2';
+         cout << endl << "Invalid Answer. Try again." << endl << endl;
+         
       }
 
-   } while (input[0] != '2');
+   } while (playerAnswer[0] != '3');
 }
 
-// check input to see if each tile is used only once
-// or if the correct tiles were used at all
-bool checkInput(char arr[], char input[])
+// check if middle tile was used
+bool checkMiddle(char gameTable[], char playerAnswer[], int inputLength)
 {
-   char letterArrayCopy[9];
-   cout << "copying array...";
-   for (int i = 0; i < 9; ++i)
+   // Table Positions
+   //  0   1   2
+   //  3   4   5
+   //  6   7   8
+   // check if middle letter is in the player's answer
+   int tablePosition = 4;
+   int index = 0;
+   while(index < inputLength)
    {
-      letterArrayCopy[i] = arr[i];
-      
-      cout << letterArrayCopy[i];
-   }
-   cout << endl;
-   
-   // set beginning to middle letter
-   int boardIndex = 5;
-   for (int i = 0; i < 9; )
-   {
-      boardIndex = boardIndex % 9;
-      
-      // If input's first letter does not match with 
-      // middle letter continue to next position 
-      // in input array until the character if found
-      // If central letter is found return true
-      // If central letter is not found the function
-      // returns false
-      if (arr[boardIndex] != input[i])
+
+      if (gameTable[tablePosition] != playerAnswer[index])
       {
-         ++i;
+         ++index;
       }
-      else if (arr[boardIndex] == input[i] )
+      else if (gameTable[tablePosition] == playerAnswer[index])
       {
-         arr[boardIndex] = 0;
          return true;
       }
    }
    return false;
+}
+
+int checkDictionary(char input[], int inputLength)
+{
+   const string FILE_NAME = "Dictionary.txt";
+   ifstream inputFile;
+   string word;
+   cout << "Answer is" << endl;
+   for (int i = 0; i < inputLength; i++)
+   {
+      cout << input[i] << " ";
+   }
+   cout << endl;
+   system("pause");
+   if (!inputFile.fail())
+   {
+      inputFile.open(FILE_NAME);
+      cout << "Dictionary opened" << endl;
+      cout << "Player Answer Length: " << inputLength << endl << endl;
+      while (inputFile >> word)
+      {
+         int i = 0;
+         cout << word << endl;
+         while (i < inputLength)
+         {
+            if (tolower(input[i]) == word[i])
+            {
+               cout << word[i] << endl;
+               ++i;
+            }
+            else
+            {
+               cout << "Invalid word detected" << endl;
+               break;
+            }
+         }
+         if (i == inputLength - 1)
+         {
+            cout << "Congrats, you know some random word...here, have some points" << endl
+               << "+500"
+               << endl
+               << endl;
+            return 500;
+         }
+      }
+
+   }
+   else
+   {
+      cout << "Error file not detected.";
+   }
+   return 0;
 }
