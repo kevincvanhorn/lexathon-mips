@@ -192,7 +192,7 @@ void startGame(char gameTable[])
       }
       else if(inputIsValid == false)
       {
-         cout << endl << "Invalid Answer. Try again." << endl << endl;
+         cout << endl << "Invalid Answer. Middle letter not used. Try again." << endl << endl;
          
       }
 
@@ -227,8 +227,13 @@ bool checkMiddle(char gameTable[], char playerAnswer[], int inputLength)
 int checkDictionary(char input[], int inputLength)
 {
    const string FILE_NAME = "Dictionary.txt";
+   
+   // create input stream object
    ifstream inputFile;
+   
+   // string to hold words
    string dictionaryWord;
+   
    cout << "Answer you entered is" << endl;
    for (int i = 0; i < inputLength; i++)
    {
@@ -236,6 +241,8 @@ int checkDictionary(char input[], int inputLength)
    }
    cout << endl;
    system("pause");
+   
+   // open file for reading
    if (!inputFile.fail())
    {
       inputFile.open(FILE_NAME);
@@ -249,21 +256,18 @@ int checkDictionary(char input[], int inputLength)
          {
             if (tolower(input[i]) == dictionaryWord[i])
             {
-               cout << dictionaryWord[i] << endl;
+               cout << dictionaryWord[i];
                ++i;
             }
             else
             {
-               cout << "Invalid word detected" << endl;
                break;
             }
          }
-         if (i == inputLength)
+         if (i == inputLength) // if (i == inputLength && i == sizeof(dictionaryWord) - 1)
          {
-            cout << "Congrats, you know some random word"
-               << "here, have some points" << endl
-               << "+500"
-               << endl
+            cout << "Here, have some points" << endl
+               << "+500" << endl
                << endl;
             return 500;
          }
