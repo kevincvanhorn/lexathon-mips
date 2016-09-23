@@ -44,6 +44,7 @@ int main()
    return 0;
 }
 
+// Display menu
 void printMenu()
 {
    // Variable holds user input
@@ -134,17 +135,18 @@ void printBoard(char gameTable[])
 void startGame(char gameTable[])
 {
    char playerAnswer[9]; // array holds player input
-   int score = 0;
+   int score = 0; // variable hold player score
    
    randomizeBoard(gameTable);
    
    do
    {
       // initialize array
-      for (int i = 0; i < sizeof(playerAnswer); i++)
+      for (int i = 0; i < sizeof(playerAnswer); ++i)
       {
          playerAnswer[i] = '0';
       }
+      
       // print board
       printBoard(gameTable);
       cout << "Score: " << score << endl;
@@ -152,12 +154,16 @@ void startGame(char gameTable[])
          << "2) Shuffle" << endl
          << "3) Give Up" << endl
          << "Enter word:" << endl;
+      
       // get player's answer
       cin >> playerAnswer;
+      
+      // if 1 entered into menu print instructions
       if (playerAnswer[0] == '1')
       {
          printInstructions();
       }
+      // if 2 entered shuffle board
       else if (playerAnswer[0] == '2')
       {
          randomizeBoard(gameTable);
@@ -173,13 +179,13 @@ void startGame(char gameTable[])
       }
       inputLength = inputLength - 1;
       cout << "Input length is " << inputLength << endl;
-      cout << "Player anwser is: " << playerAnswer[0] << playerAnswer[1] << endl;
+      cout << "Player's answer is: " << playerAnswer[0] << playerAnswer[1] << endl;
       cout << endl;
       
-      // Check if answer is valid
+      // Check if middle letter was used
       bool inputIsValid = checkMiddle(gameTable, playerAnswer, inputLength);
       
-      // If input valid add score, else try again
+      // If input valid add to score, else try again
       if (inputIsValid == true)
       {
          score = score + checkDictionary(playerAnswer, inputLength);
@@ -206,11 +212,11 @@ bool checkMiddle(char gameTable[], char playerAnswer[], int inputLength)
    while(index < inputLength)
    {
 
-      if (gameTable[tablePosition] != playerAnswer[index])
+      if (gameTable[tablePosition] != toupper(playerAnswer[index]))
       {
          ++index;
       }
-      else if (gameTable[tablePosition] == playerAnswer[index])
+      else if (gameTable[tablePosition] == toupper(playerAnswer[index]))
       {
          return true;
       }
@@ -222,11 +228,11 @@ int checkDictionary(char input[], int inputLength)
 {
    const string FILE_NAME = "Dictionary.txt";
    ifstream inputFile;
-   string word;
-   cout << "Answer is" << endl;
+   string dictionaryWord;
+   cout << "Answer you entered is" << endl;
    for (int i = 0; i < inputLength; i++)
    {
-      cout << input[i] << " ";
+      cout << input[i];
    }
    cout << endl;
    system("pause");
@@ -235,15 +241,15 @@ int checkDictionary(char input[], int inputLength)
       inputFile.open(FILE_NAME);
       cout << "Dictionary opened" << endl;
       cout << "Player Answer Length: " << inputLength << endl << endl;
-      while (inputFile >> word)
+      while (inputFile >> dictionaryWord)
       {
          int i = 0;
-         cout << word << endl;
+         cout << dictionaryWord << endl;
          while (i < inputLength)
          {
-            if (tolower(input[i]) == word[i])
+            if (tolower(input[i]) == dictionaryWord[i])
             {
-               cout << word[i] << endl;
+               cout << dictionaryWord[i] << endl;
                ++i;
             }
             else
@@ -252,9 +258,10 @@ int checkDictionary(char input[], int inputLength)
                break;
             }
          }
-         if (i == inputLength - 1)
+         if (i == inputLength)
          {
-            cout << "Congrats, you know some random word...here, have some points" << endl
+            cout << "Congrats, you know some random word"
+               << "here, have some points" << endl
                << "+500"
                << endl
                << endl;
