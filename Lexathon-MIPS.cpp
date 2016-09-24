@@ -263,15 +263,18 @@ int checkDictionary(char input[], int inputLength)
             {
                break;
             }
+            cout << endl;
          }
          if (i == inputLength) // if (i == inputLength && i == sizeof(dictionaryWord) - 1)
          {
-            cout << "Here, have some points" << endl
+            cout << "Word found:" << dictionaryWord << endl
+               << "Here, have some points" << endl
                << "+500" << endl
                << endl;
             return 500;
          }
       }
+      cout << "Word not found" << endl << endl;
 
    }
    else
