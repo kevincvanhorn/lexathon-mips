@@ -38,9 +38,7 @@ const int ARRAY_SIZE = 9;
 
 int main()
 {
-
    printMenu();
-   system("pause");
    return 0;
 }
 
@@ -71,10 +69,10 @@ void printMenu()
       {
          printInstructions();
       }
-      else if (choice == 3)
+      /*else if (choice == 3)
       {
          break;
-      }
+      }*/
 
       cout << "1) Start the game\n";
       cout << "2) Instructions\n";
@@ -86,7 +84,6 @@ void printMenu()
 // Print out instructions
 void printInstructions()
 {
-
    cout << "Lexathon is a word game where you must find as many word\n"
       << "of four or more letters in the alloted time\n\n";
    cout << "Each word must contain the central letter exactly once,\n"
@@ -119,27 +116,27 @@ void randomizeBoard(char gameTable[])
 // Print board
 void printBoard(char gameTable[])
 {
-   int line = 1;
+    // CHANGED 10.4.16 removed 'line' variable, so only i is needed -Kevin
    for (int i = 0; i < ARRAY_SIZE; ++i)
    {
       cout << "| " << gameTable[i] << " | ";
-      if ( line % 3 == 0)
+      if ( (i+1) % 3 == 0)
       {
          cout << "\n";
       }
-      ++line;
    }
 }
 
 // Starts the game
 void startGame(char gameTable[])
 {
+    bool inputIsValid = false;
    string playerAnswer = " ";
    int score = 0; // variable hold player score
 
    randomizeBoard(gameTable);
 
-   do
+   do // CHANGE: rewrite w/o do for easier MIPS implementation
    {
       // print board
       printBoard(gameTable);
@@ -169,7 +166,7 @@ void startGame(char gameTable[])
       cout << endl;
 
       // Check if middle letter was used
-      bool inputIsValid = checkMiddle(gameTable, playerAnswer, inputLength);
+      inputIsValid = checkMiddle(gameTable, playerAnswer, inputLength);
 
       // If input valid add to score, else try again
       if (inputIsValid == true)
@@ -178,8 +175,8 @@ void startGame(char gameTable[])
       }
       else if(inputIsValid == false)
       {
+          //FIX: this is showing up on shuffle
          cout << endl << "Invalid Answer. Middle letter not used. Try again." << endl << endl;
-
       }
 
    } while (playerAnswer[0] != '3');
