@@ -148,8 +148,8 @@ void startGame(char gameTable[])
       cout << "1) Instructions" << endl
          << "2) Shuffle" << endl
          << "3) Give Up" << endl
-         << "Enter word:" << endl;
-
+         << "Enter word: ";
+      
       // Get player's answer
       cin >> playerAnswer;
 
@@ -184,7 +184,11 @@ void startGame(char gameTable[])
             if (inputIsValid == true)
             {
                score = score + addScore(answerLength);
-               cout << endl << "+" << addScore(answerLength) << endl;
+               cout << endl << "+" << addScore(answerLength) << endl << endl;
+            }
+            else
+            {
+               cout << "Not a valid word" << endl << endl;
             }
          }
       }
@@ -233,7 +237,7 @@ bool checkDictionary(string answer, int answerLength)
    
    // create input stream object
    ifstream inputFile;
-   // string to hold words
+   // string to hold words in the dictionary
    string dictionaryWord;
    
    // Open Dictionary.txt for reading
@@ -244,7 +248,13 @@ bool checkDictionary(string answer, int answerLength)
       
       while (inputFile >> dictionaryWord)
       {
+         
          int correctLetters = 0;
+         
+         /*cout << dictionaryWord << endl;
+         cout << dictionaryWord.length() << endl;
+         cin >> dictionaryWord; */
+         
          for (int i = 0; i < answerLength; ++i)
          {
             if (answer[i] != dictionaryWord[i])
@@ -256,7 +266,7 @@ bool checkDictionary(string answer, int answerLength)
                correctLetters += 1;
             }
          }
-         if (correctLetters == dictionaryWord.length())
+         if (correctLetters == dictionaryWord.length() && correctLetters == answerLength)
          {
             return true;
          }
