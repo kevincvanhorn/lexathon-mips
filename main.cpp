@@ -32,8 +32,8 @@ void randomizeBoard(char gameTable[]);
 void printBoard(char gameTable[]);
 void startGame(char gameTable[]);
 bool checkMiddle(char gameTable[], string answer, int answerLength);
-int checkDictionary(string answer, int answerLength);
-int score(int length);
+bool checkDictionary(string answer, int answerLength);
+int addScore(int length);
 
 const int ARRAY_SIZE = 9;
 
@@ -170,13 +170,7 @@ void startGame(char gameTable[])
       
       // Check if middle letter was used
       inputIsValid = checkMiddle(gameTable, playerAnswer, answerLength);
-
-      // If input is valid, add to score, else try again
-      if (inputIsValid == true)
-      {
-         score = score + checkDictionary(playerAnswer, answerLength);
-      }
-      else if (playerAnswer != "1" && playerAnswer != "2" && playerAnswer != "3")
+      if (playerAnswer != "1" && playerAnswer != "2" && playerAnswer != "3")
       {
          //FIX: this is showing up on shuffle
          //10.14.16 This has been fixed
@@ -184,7 +178,21 @@ void startGame(char gameTable[])
          {
             cout << endl << "Middle letter was not used. Try again." << endl << endl;
          }
+         else if (inputIsValid == true)
+         {
+            inputIsValid = checkDictionary(playerAnswer, answerLength);
+            if (inputIsValid == true)
+            {
+               score = score + addScore(answerLength);
+               cout << endl << "+" << addScore(answerLength) << endl;
+            }
+         }
       }
+      
+      
+
+
+
 
 
    } while (playerAnswer[0] != '3');
@@ -219,7 +227,7 @@ bool checkMiddle(char gameTable[], string answer, int answerLength)
 }
 
 // Check the dictionary for the player's answer
-int checkDictionary(string answer, int answerLength)
+bool checkDictionary(string answer, int answerLength)
 {
    const string FILE_NAME = "Dictionary.txt";
    
@@ -232,35 +240,28 @@ int checkDictionary(string answer, int answerLength)
    if (!inputFile.fail())
    {
       inputFile.open(FILE_NAME);
-      cout << "Dictionary opened..." << endl;
+      //cout << "Dictionary opened..." << endl;
       
       while (inputFile >> dictionaryWord)
       {
-         
-         int i;
-         for (i = 0; i < answerLength;)
+         int correctLetters = 0;
+         for (int i = 0; i < answerLength; ++i)
          {
-            if (dictionaryWord[i] == answer[i])
-            {
-               ++i;
-            }
-            else
+            if (answer[i] != dictionaryWord[i])
             {
                break;
             }
+            else if (answer[i] == dictionaryWord[i])
+            {
+               correctLetters += 1;
+            }
          }
-         
-         if (i + 1  == dictionaryWord.length())
+         if (correctLetters == dictionaryWord.length())
          {
-            cout << "WORD FOUND:" << dictionaryWord << endl
-               << "+" << score << endl << endl;
-            return score(i);
+            return true;
          }
-
-
       }
-      cout << "WORD NOT FOUND." << endl << endl;
-      return 0;
+
 
    }
    else
@@ -268,10 +269,10 @@ int checkDictionary(string answer, int answerLength)
       cout << "Error file not detected.";
    }
    
-   return 0;
+   return false;
 }
 
-int score(int length)
+int addScore(int length)
 {
    int score;
    score = 5 * length;
