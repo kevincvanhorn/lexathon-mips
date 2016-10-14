@@ -6,6 +6,9 @@ Added shuffle option.
 
 Game can now read player answer and search for it in dictionary. Refining search algorithm.
 
+10.14.16
+Finished search algorithm.
+Now need to implement scoring system and timing system.
 
 
 
@@ -51,3 +54,5 @@ Game can now read player answer and search for it in dictionary. Refining search
 
 
 i have no idea what i'm doing
+EDIT:
+i kind of have an idea
