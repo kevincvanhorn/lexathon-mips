@@ -33,6 +33,7 @@ void printBoard(char gameTable[]);
 void startGame(char gameTable[]);
 bool checkMiddle(char gameTable[], string answer, int answerLength);
 int checkDictionary(string answer, int answerLength);
+int score(int length);
 
 const int ARRAY_SIZE = 9;
 
@@ -99,6 +100,8 @@ void printInstructions()
 void randomizeBoard(char gameTable[])
 {
    srand(time(NULL));
+   char vowel[] = { 'A', 'E', 'I', 'O', 'U' };
+   
    for (int index = 0; index < ARRAY_SIZE; ++index)
    {
       
@@ -109,6 +112,8 @@ void randomizeBoard(char gameTable[])
          cout << endl;
       }
    }
+   gameTable[4] = vowel[rand() % 5];
+
 }
 
 // Print board
@@ -125,10 +130,10 @@ void printBoard(char gameTable[])
    }
 }
 
-// Starts the game
+// Starts game
 void startGame(char gameTable[])
 {
-   bool inputIsValid = false;
+   bool inputIsValid = false; 
    string playerAnswer = " "; // hold player's answer
    int score = 0; // variable hold player's score
 
@@ -163,7 +168,6 @@ void startGame(char gameTable[])
       cout << "Answer length: " << answerLength << endl;
       cout << "Player's answer: " << playerAnswer << endl;
       
-
       // Check if middle letter was used
       inputIsValid = checkMiddle(gameTable, playerAnswer, answerLength);
 
@@ -188,7 +192,7 @@ void startGame(char gameTable[])
 
 // Checks if the Middle Tile was used
 // Returns TRUE if the middle letter was used
-// Else return FALSE
+// Returns false otherwise
 bool checkMiddle(char gameTable[], string answer, int answerLength)
 {
    // Table Positions
@@ -218,63 +222,44 @@ bool checkMiddle(char gameTable[], string answer, int answerLength)
 int checkDictionary(string answer, int answerLength)
 {
    const string FILE_NAME = "Dictionary.txt";
-
+   
    // create input stream object
    ifstream inputFile;
-
    // string to hold words
    string dictionaryWord;
-
-   cout << "Answer you entered is: ";
    
-   for (int i = 0; i < answerLength; i++)
-   {
-      cout << answer[i];
-   }
-   
-   cout << endl;
-   //system("pause");
-
-   // open dictionary file for reading
+   // Open Dictionary.txt for reading
    if (!inputFile.fail())
    {
       inputFile.open(FILE_NAME);
       cout << "Dictionary opened..." << endl;
-      //cout << "Answer length is: " << answerLength << endl << endl;
       
       while (inputFile >> dictionaryWord)
       {
-         int i = 0;
-         //cout << dictionaryWord << endl;
-         while (i < answerLength)
+         
+         int i;
+         for (i = 0; i < answerLength;)
          {
-            // If the letter of answer matches with dictionary word
-            // increment to the next one, else break and continue to
-            // next word
-            if (tolower(answer[i]) == dictionaryWord[i])
+            if (dictionaryWord[i] == answer[i])
             {
-               //cout << dictionaryWord[i];
                ++i;
             }
             else
             {
                break;
             }
-            //cout << endl;
          }
          
-         if (i == dictionaryWord.length())
+         if (i + 1  == dictionaryWord.length())
          {
             cout << "WORD FOUND:" << dictionaryWord << endl
-               << "YOU ARE A GENIUS!" << endl
-               << "+50" << endl
-               << endl;
-            return 50;
+               << "+" << score << endl << endl;
+            return score(i);
          }
 
 
       }
-      cout << "WORD NOT FOUND. YOU SUCK." << endl << endl;
+      cout << "WORD NOT FOUND." << endl << endl;
       return 0;
 
    }
@@ -282,5 +267,13 @@ int checkDictionary(string answer, int answerLength)
    {
       cout << "Error file not detected.";
    }
+   
    return 0;
+}
+
+int score(int length)
+{
+   int score;
+   score = 5 * length;
+   return score;
 }
