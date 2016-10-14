@@ -98,10 +98,12 @@ void printInstructions()
 // Generate random letters for table
 void randomizeBoard(char gameTable[])
 {
+   srand(time(NULL));
    for (int index = 0; index < ARRAY_SIZE; ++index)
    {
+      
       gameTable[index] = 65 + rand() % 26;
-
+      
       if (index + 1 % 3 == 0)
       {
          cout << endl;
