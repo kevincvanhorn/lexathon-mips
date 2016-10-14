@@ -1,5 +1,5 @@
 # lexathon-in-C++
-USE MAIN.CPP NOT LEXATHON_MIPS.CPP
+USE MAIN.CPP NOT LEXATHON-MIPS.CPP
 
 v1.03
 Add the Dictionary.txt file to your project folder so the program can find it.
