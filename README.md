@@ -16,3 +16,4 @@ Middle letter is now always a vowel so you can make more words!
 
 Scoring now depends on word length
 
+Search algorithm now works. Test it.
