@@ -1,21 +1,10 @@
-//Author(s):  Kevin VanHorn
+//Author(s):  Kevin van Horn
 //            Nishant Gurrapadi
 //            Thach Ngo
 //Prof:       Nhut Nguyen
 //Assignment: Lexathon Project
 //Class:      CS3340.501/ Computer Architecture
 //Due:        1 December, 2016
-
-/*
-    Issues/Improvements:
-    + Word minimum of 4 (most boards dont have enough words)
-        -Possible Fixes:
-                1. Run board through analyzer: regen if too difficult
-                2. Lexathon has the ability to lock letters ADD THIS (later)
-    + No letter can be used twice (no way to check this at the moment)
-    + Add Timer so program has the game aspect (update after every word entered by seconds elapsed)
-
-*/
 
 #include <iostream>
 #include <fstream>
@@ -24,6 +13,18 @@
 #include <string>
 
 using namespace std;
+// Lexathon is a word game where you must find as many word
+// of four or more letters in the alloted time
+// Each word must contain the central letter exactly once,
+// and other tiles can be used once
+// You start each game with 60 seconds
+// Finding a new word increases time by 20 seconds
+// The game ends when:
+// -Time runs out, or
+// -You give up
+// Scores are determined by both the percentage of words found
+// and how quickly words are found
+// so find as many words as quickly as possible.
 
 void printMenu();
 void printInstructions();
@@ -59,7 +60,6 @@ void printMenu()
 
    // Input player's choice
    cin >> choice;
-   cout << endl;
    while (choice != 3)
    {
       if (choice == 1)
@@ -75,7 +75,6 @@ void printMenu()
       cout << "2) Instructions\n";
       cout << "3) Exit\n";
       cin >> choice;
-      cout << endl;
    }
 }
 
@@ -100,21 +99,21 @@ void printInstructions()
 // Generate random letters for table
 void randomizeBoard(char gameTable[])
 {
-   srand(time(NULL)); // This will be different for MIPS, but in the subroutine: make sure srand has a random seed
-                      // As of now, every game starts with the same board. -Kevin
+   srand(time(NULL));
    char vowel[] = { 'A', 'E', 'I', 'O', 'U' };
-
+   
    for (int index = 0; index < ARRAY_SIZE; ++index)
    {
-
+      
       gameTable[index] = 65 + rand() % 26;
-
+      
       if (index + 1 % 3 == 0)
       {
          cout << endl;
       }
    }
    gameTable[4] = vowel[rand() % 5];
+
 }
 
 // Print board
@@ -129,29 +128,28 @@ void printBoard(char gameTable[])
          cout << "\n";
       }
    }
-   cout << endl;
 }
 
 // Starts game
 void startGame(char gameTable[])
 {
-   bool inputIsValid = false;
+   bool inputIsValid = false; 
    string playerAnswer = " "; // hold player's answer
    int score = 0; // variable hold player's score
 
    randomizeBoard(gameTable);
 
-   do
+   do // CHANGE: rewrite w/o do for easier MIPS implementation
    {
-
+      
       printBoard(gameTable);
-
+      
       cout << "Score: " << score << endl;
-      cout << "Instructions: [1], Shuffle: [2], Give Up: [3]" << endl // CHANGED: Reduced to one line for readability 11-14-16 :Kevin
-         //<< "2) Shuffle" << endl
-         //<< "3) Give Up" << endl
+      cout << "1) Instructions" << endl
+         << "2) Shuffle" << endl
+         << "3) Give Up" << endl
          << "Enter word: ";
-
+      
       // Get player's answer
       cin >> playerAnswer;
 
@@ -166,48 +164,42 @@ void startGame(char gameTable[])
          randomizeBoard(gameTable);
       }
 
-      // If a word is entered
-      else if(playerAnswer[0] != '3'){
-          int answerLength = playerAnswer.size();
-          cout << "Answer length: " << answerLength << endl;
-          cout << "Player's answer: " << playerAnswer << endl;
-
-          // Check if middle letter was used
-          inputIsValid = checkMiddle(gameTable, playerAnswer, answerLength);
-          if (playerAnswer != "1" && playerAnswer != "2" && playerAnswer != "3")
-          {
-             //FIX: this is showing up on shuffle
-             //10.14.16 This has been fixed
-             if (inputIsValid == false)
-             {
-                cout << endl << "Middle letter was not used. Try again." << endl << endl;
-             }
-             else if (inputIsValid == true)
-             {
-                inputIsValid = checkDictionary(playerAnswer, answerLength);
-                if (inputIsValid == true)
-                {
-                   score = score + addScore(answerLength);
-                   cout << endl << "+" << addScore(answerLength) << endl << endl;
-                }
-                else
-                {
-                   cout << "Not a valid word" << endl << endl;
-                }
-             }
-          }
+      int answerLength = playerAnswer.size();
+      cout << "Answer length: " << answerLength << endl;
+      cout << "Player's answer: " << playerAnswer << endl;
+      
+      // Check if middle letter was used
+      inputIsValid = checkMiddle(gameTable, playerAnswer, answerLength);
+      if (playerAnswer != "1" && playerAnswer != "2" && playerAnswer != "3")
+      {
+         //FIX: this is showing up on shuffle
+         //10.14.16 This has been fixed
+         if (inputIsValid == false)
+         {
+            cout << endl << "Middle letter was not used. Try again." << endl << endl;
+         }
+         else if (inputIsValid == true)
+         {
+            inputIsValid = checkDictionary(playerAnswer, answerLength);
+            if (inputIsValid == true)
+            {
+               score = score + addScore(answerLength);
+               cout << endl << "+" << addScore(answerLength) << endl << endl;
+            }
+            else
+            {
+               cout << "Not a valid word" << endl << endl;
+            }
+         }
       }
-
-
+      
+      
 
 
 
 
 
    } while (playerAnswer[0] != '3');
-   cout << endl;
-   cout << "Your FINAL SCORE is... " << score << "!\n";
-   cout << endl << "Again?\n";
 }
 
 // Checks if the Middle Tile was used
@@ -220,10 +212,10 @@ bool checkMiddle(char gameTable[], string answer, int answerLength)
    //  3   4   5
    //  6   7   8
    // check if middle letter is in the player's answer
-
+   
    int tablePosition = 4;
    int index = 0;
-
+   
    while (index < answerLength)
    {
       if (gameTable[tablePosition] != toupper(answer[index]))
@@ -242,34 +234,34 @@ bool checkMiddle(char gameTable[], string answer, int answerLength)
 bool checkDictionary(string answer, int answerLength)
 {
    const string FILE_NAME = "Dictionary.txt";
-
+   
    // create input stream object
    ifstream inputFile;
    // string to hold words in the dictionary
    string dictionaryWord;
-
+   
    // Open Dictionary.txt for reading
    if (!inputFile.fail())
    {
       inputFile.open(FILE_NAME);
       //cout << "Dictionary opened..." << endl;
-
+      
       while (inputFile >> dictionaryWord)
       {
-
+         
          int correctLetters = 0;
-
+         
          /*cout << dictionaryWord << endl;
          cout << dictionaryWord.length() << endl;
          cin >> dictionaryWord; */
-
+         
          for (int i = 0; i < answerLength; ++i)
          {
-            if (tolower(answer[i]) != dictionaryWord[i]) // CHANGED: tolower() may need to be added as a subroutine-Kevin
+            if (answer[i] != dictionaryWord[i])
             {
                break;
             }
-            else //if (answer[i] == dictionaryWord[i])
+            else if (answer[i] == dictionaryWord[i])
             {
                correctLetters += 1;
             }
@@ -286,7 +278,7 @@ bool checkDictionary(string answer, int answerLength)
    {
       cout << "Error file not detected.";
    }
-
+   
    return false;
 }
 
