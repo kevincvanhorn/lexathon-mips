@@ -10,15 +10,16 @@
 # STYLE GUIDE: http://www.sourceformat.com/pdf/asm-coding-standard-brown.pdf
 	
 	.data
-#Global Vars
+# Global Vars
 pNewLine: .asciiz "\n"
 gameTable:  .space 36 # space for 9 words, each to store a character
 
 # PrintMenu Global Vars
 pPrintMenu1: .asciiz "Welcome to Lexathon!\n\n"
 pPrintMenu2: .asciiz "1) Start the game\n2) Instructions\n3) Exit\n"
-	
-	
+
+# printInstructions Global Vars	
+pPrintInstructions: .asciiz "Lexathon is a word game where you must find as many words\nof four or more letters in the alloted time\n\nEach word must contain the central letter exactly once,\nand other tiles can be used once\n\nYou start each game with 60 seconds\nFinding a new word increases time by 20 seconds\n\nThe game ends when:\n-Time runs out, or\n-You give up\n\nScores are determined by both the percentage of words found\nand how quickly words are found.\nso find as many words as quickly as possible.\n\n"	
 	
 	.text
 main:
@@ -87,10 +88,12 @@ startGame:
 	j Exit
 
 printInstructions:
-	j Exit
-
-
-		
+	# Print pPrintInstructions
+	addi $v0, $zero, 4 # Load "print string" SYSCALL service into revister $v0
+	la $a0, pPrintInstructions # Load argument value, to print, into $a0
+	syscall
+	jr $ra
+			
 Exit:
 	li $v0, 10 #Exit Syscall
 	syscall
