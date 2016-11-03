@@ -1,29 +1,10 @@
-# LEXATHON PROJECT
-# @author	Kevin VanHorn (kcv150030), Nishant Gurrapadi (), 
-#		Thach Ngo (), 
-# Course: 	CS3340.50 Professor Nhut Nguyen
-# Due: 1 December, 2016
-#
-# Analysis:
-# Design: 
-#
-# STYLE GUIDE: http://www.sourceformat.com/pdf/asm-coding-standard-brown.pdf
-	
 	.data
-#Global Vars
 pNewLine: .asciiz "\n"
-gameTable:  .space 36 # space for 9 words, each to store a character
-
-# PrintMenu Global Vars
 pPrintMenu1: .asciiz "Welcome to Lexathon!\n\n"
 pPrintMenu2: .asciiz "1) Start the game\n2) Instructions\n3) Exit\n"
-	
-	
-	
-	.text
-main:
-	jal printMenu
 
+gameTable:  .space 36 # space for 9 words, each to store a character
+	.text
 #****************************************************************
 printMenu: #void printMenu()
 
@@ -34,7 +15,9 @@ printMenu: #void printMenu()
 # Register usage
 # $t0 choice: to hold user input (integer)
 #**************
-
+	
+	# Clear used vars
+	
 	# Print pPrintMenu1 (welcome message)
 	addi $v0, $zero, 4 # Load "print string" SYSCALL service into revister $v0
 	la $a0, pPrintMenu1 # Load argument value, to print, into $a0
@@ -79,18 +62,18 @@ printMenuChoice:
 	la $a0, pNewLine # Load argument value, to print, into $a0
 	syscall
 	
-	j printMenuWhile # return to while
+	j printMenuWhile
+	
 #****************************************************************	
 
 # Dummy Functions:
 startGame:
 	j Exit
-
 printInstructions:
 	j Exit
-
-
-		
+	
 Exit:
 	li $v0, 10 #Exit Syscall
-	syscall
+	syscall	
+	
+
