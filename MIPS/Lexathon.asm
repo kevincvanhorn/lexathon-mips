@@ -21,7 +21,14 @@ pPrintMenu2: .asciiz "1) Start the game\n2) Instructions\n3) Exit\n"
 
 # printInstructions Global Vars	
 pPrintInstructions: .asciiz "Lexathon is a word game where you must find as many words\nof four or more letters in the alloted time\n\nEach word must contain the central letter exactly once,\nand other tiles can be used once\n\nYou start each game with 60 seconds\nFinding a new word increases time by 20 seconds\n\nThe game ends when:\n-Time runs out, or\n-You give up\n\nScores are determined by both the percentage of words found\nand how quickly words are found.\nso find as many words as quickly as possible.\n\n"	
-	
+
+# randomizeBoard Global Vars
+vowels: .byte 'A', 'E', 'I', 'O', 'U'
+
+# printBoard Global Vars
+pPrintBoard1: .asciiz "| "
+pPrintBoard2: .asciiz " | "
+		
 	.text
 main:
 	jal printMenu
@@ -105,9 +112,19 @@ printBoardLoop: # for (int i = 0; i < ARRAY_SIZE; ++i)
 	add $t4, $t3, $t0 # store address gameTable[i] into $t4
 	lb $t4, ($t4) # Load the character byte into $t4
 	
+	# Print "| "
+	addi $v0, $zero, 4 # Load "print string" SYSCALL service into revister $v0
+	la $a0, pPrintBoard1 # Load argument value, to print, into $a0
+	syscall
+	
 	# Print a0
 	addi $v0, $zero, 11 # Load "print character" SYSCALL service into revister $v0
 	add $a0, $t4, $zero
+	syscall
+	
+	# Print " | "
+	addi $v0, $zero, 4 # Load "print string" SYSCALL service into revister $v0
+	la $a0, pPrintBoard2 # Load argument value, to print, into $a0
 	syscall
 	
 	# Print only after 3rd and 6th element
@@ -125,6 +142,64 @@ printBoardLoopEnd:
 	
 printBoardLoopReturn:
 	# jr $ra
+#****************************************************************
+
+#****************************************************************
+randomizeBoard: #void randomizeBoard()
+#**************
+# sets the elements of gameBoard[]
+#
+#
+# Register usage
+# $t0 - "index" for looping 
+# $t1 - for comparison
+# $t2 - stores gameTable[] starting address
+# $t3 - stores random number
+# $t4 - index*4
+# $t5 - holds address of vowels[]
+#**************
+
+# initialize vars
+	add $t0, $zero, $zero # init index to 0
+	la $t2, gameTable # load gameTable[] into $t2
+	
+	slti $t1, $t0, 9 # sets $t1 to 1 if(index < ARRAY_SIZE)
+randomizeBoardLoop:
+	bne $t1, 1, randomizeBoardLoopEnd # for (int index = 0; index < ARRAY_SIZE; ++index)
+	
+	li $v0, 41 # generate random int A - Z
+	add $a0, $zero, $zero # set randomize type to 0
+	syscall # stored in $a0
+	add $t3, $a0, $zero
+	
+	div $t3, $t3, 26 # Set range
+	mfhi $t3
+	abs $t3, $t3
+	addi $t3, $t3, 65 
+	
+	add $t4, $t2, $t0 # store address of array[i] into $t4
+	sb $t3, ($t4) # stores random num into array[index]
+
+	addi $t0, $t0, 1 # index++
+	slti $t1, $t0, 9 # sets $t1 to 1 if(index < ARRAY_SIZE)
+	
+	j randomizeBoardLoop
+	
+randomizeBoardLoopEnd:
+	li $v0, 41 # gen random int 0-5
+	add $a0, $zero, $zero
+	syscall # stored in $a0
+	add $t3, $a0, $zero
+	div $t3, $t3, 5 # range of random int = 1-5
+	mfhi $t3	
+	abs $t3, $t3
+	
+	la $t5, vowels # starting address of vowels[]
+	add $t4, $t5, $t3 # vowels[random]
+	lb $t4, ($t4)
+	sb $t4, 4($t2) # store random vowel in middle of gameTable[]
+
+	jr $ra														
 #****************************************************************
 
 

@@ -1,5 +1,7 @@
 	.data
 pNewLine: .asciiz "\n"
+pPrintBoard1: .asciiz "| "
+pPrintBoard2: .asciiz " | "
 gameTable01:  .space 9 # space for 9 bytes # This is what will actually be used
 gameTable: .byte 'A','B','C','D','E','F','G','H','I' # This is for testing
 	.text	
@@ -25,10 +27,21 @@ printBoardLoop: # for (int i = 0; i < ARRAY_SIZE; ++i)
 	add $t4, $t3, $t0 # store address gameTable[i] into $t4
 	lb $t4, ($t4) # Load the character byte into $t4
 	
-	# Print a0
+	# Print "| "
+	addi $v0, $zero, 4 # Load "print string" SYSCALL service into revister $v0
+	la $a0, pPrintBoard1 # Load argument value, to print, into $a0
+	syscall
+	
+	# Print gameTable[i]
 	addi $v0, $zero, 11 # Load "print character" SYSCALL service into revister $v0
 	add $a0, $t4, $zero
 	syscall
+	
+	# Print " | "
+	addi $v0, $zero, 4 # Load "print string" SYSCALL service into revister $v0
+	la $a0, pPrintBoard2 # Load argument value, to print, into $a0
+	syscall
+	
 	
 	# Print only after 3rd and 6th element
 	beq $t0, 2, printBoardLine

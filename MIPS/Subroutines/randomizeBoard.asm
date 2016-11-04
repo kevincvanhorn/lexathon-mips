@@ -2,7 +2,9 @@
 pNewLine: .asciiz "\n"
 	.align 2 # aligns the next value on a word
 gameTable:  .space 9 # space for 9 bytes
-gameTable2: .byte 'A','B','C','D','E','F','G','H','I'
+
+vowels: .byte 'A', 'E', 'I', 'O', 'U'
+
 	.text
 #****************************************************************
 randomizeBoard: #void randomizeBoard()
@@ -16,6 +18,7 @@ randomizeBoard: #void randomizeBoard()
 # $t2 - stores gameTable[] starting address
 # $t3 - stores random number
 # $t4 - index*4
+# $t5 - holds address of vowels[]
 #**************
 
 # initialize vars
@@ -33,16 +36,16 @@ randomizeBoardLoop:
 	
 	div $t3, $t3, 26
 	mfhi $t3
+	abs $t3, $t3
 	addi $t3, $t3, 65
 	
-	# Print a0
+	
+	# Print a0 # For Testing
 	#addi $v0, $zero, 1 # Load "print integer" SYSCALL service into revister $v0
 	#add $a0, $t3, $zero
 	#syscall
 	
-	#sll $t4, $t0, 2 # mult index by 4
-	#add $t4, $t4, $t2
-	add $t4, $t2, $t0 # store array[i] into $t2 
+	add $t4, $t2, $t0 # store address of array[i] into $t4
 	sb $t3, ($t4) # stores random num into array[index]
 
 	
@@ -52,10 +55,24 @@ randomizeBoardLoop:
 	j randomizeBoardLoop
 	
 randomizeBoardLoopEnd:
-	#jr $ra
-	j Exit
+	li $v0, 41 # gen random int 0-5
+	add $a0, $zero, $zero
+	syscall # stored in $a0
+	add $t3, $a0, $zero
+	div $t3, $t3, 5 # range of random int = 1-5
+	mfhi $t3	
+	abs $t3, $t3
 	
-			
+	
+	la $t5, vowels # starting address of vowels[]
+	add $t4, $t5, $t3 # vowels[random]
+	lb $t4, ($t4)
+	sb $t4, 4($t2) # store random vowel in middle of gameTable[]
+
+	#jr $ra
+	j Exit		
+					
+									
 #****************************************************************	
 
 Exit:
