@@ -8,6 +8,7 @@
 # Design: 
 #
 # STYLE GUIDE: http://www.sourceformat.com/pdf/asm-coding-standard-brown.pdf
+# https://docs.google.com/spreadsheets/d/1c5XmnOQwUe-ryxMq7yZ0FXpBPmGJkvcXKlpcZLSry6s/edit#gid=0
 	
 	.data
 # Global Vars
@@ -29,7 +30,7 @@ main:
 printMenu: #void printMenu()
 
 #**************
-# raises baseparam ($a0) to the power of exponentparam ($a1)
+# Loops the Menu options, calling appropriate subroutines to start the game
 #
 #
 # Register usage
