@@ -1,6 +1,7 @@
 //Author(s):  Kevin VanHorn
 //            Nishant Gurrapadi
 //            Thach Ngo
+//	      Marco Serrano
 //Prof:       Nhut Nguyen
 //Assignment: Lexathon Project
 //Class:      CS3340.501/ Computer Architecture
@@ -33,6 +34,7 @@ using namespace std;
 void printMenu();
 void printInstructions();
 void randomizeBoard(char gameTable[]);
+void shuffleBoard(char gameTable[]);
 void printBoard(char gameTable[]);
 void startGame(char gameTable[]);
 bool checkMiddle(char gameTable[], string answer, int answerLength);
@@ -121,6 +123,32 @@ void randomizeBoard(char gameTable[])
 		}
 	}
 	gameTable[4] = vowel[rand() % 5];
+}
+
+// Shuffles letters but keeps letter in the middle the same
+void shuffleBoard(char gameTable[])
+{
+    char middle = gameTable[4]; // holds the gameTable's middle value to preserve its postion
+    char temp; // to hold the a letter temporarily when shuffling
+    int randomNum; // holds the randomly generated number
+
+    srand(time(NULL));
+
+    // shuffles the entire board
+    for (int i = ARRAY_SIZE - 1; i > 0; i--){
+        randomNum = rand() % i;
+        temp = gameTable[i];
+        gameTable[i] = gameTable[randomNum];
+        gameTable[randomNum] = temp;
+    }
+
+    // finds the value originally in the middle and swaps it with the value currently in the middle
+    for(int index = 0; index < ARRAY_SIZE; index++){
+        if (gameTable[index] == middle){
+            gameTable[index] = gameTable[4];
+            gameTable[4] = middle;
+        }
+    }
 }
 
 // Print board
