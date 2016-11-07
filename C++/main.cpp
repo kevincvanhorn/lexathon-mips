@@ -233,7 +233,7 @@ void startGame(char gameTable[])
 					}
 					else
 					{
-						cout << "Not a valid word" << endl << endl;
+						cout << endl << "Not a valid word" << endl << endl;
 					}
 				}
 			}
@@ -331,6 +331,8 @@ bool checkDictionary(string answer, int answerLength)
 	return false;
 }
 
+// Compares the number of each letter in the user's answer to the number of each letter in
+// the gameTable. Returns true if answer has more of any letter than gameTable.
 bool letterRepeat(char gameTable[], string answer)
 {
     bool repeat = false;
@@ -360,32 +362,6 @@ bool letterRepeat(char gameTable[], string answer)
 
     return repeat;
 }
-/*/ Check to see if any letter is repeated
-// if letter is repeated, it returns true
-// if letter_Repeat == true, word is invalid!
-bool letter_Repeat(string answer)
-{
-	unsigned int i = 0, j = 1, tempj = 1;
-	bool repeat = false;
-	char temp = answer[i];
-
-	for(i = 0; i < answer.length(); i++)
-	{
-		temp = answer[i];
-		for(; j < answer.length(); j++)
-		{
-			if(answer[j] == temp)
-			{
-				repeat = true;
-			}
-		}
-		if(repeat == true)
-			return repeat;
-		else
-			j = ++tempj;
-	}
-	return repeat;
-}*/
 
 int addScore(int length)
 {
@@ -393,4 +369,3 @@ int addScore(int length)
 	score = 5 * length;
 	return score;
 }
-
