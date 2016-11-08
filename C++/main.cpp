@@ -1,6 +1,7 @@
 //Author(s):  Kevin VanHorn
 //            Nishant Gurrapadi
 //            Thach Ngo
+//            Marco Serrano
 //Prof:       Nhut Nguyen
 //Assignment: Lexathon Project
 //Class:      CS3340.501/ Computer Architecture
@@ -14,6 +15,10 @@ Issues/Improvements:
 2. Lexathon has the ability to lock letters ADD THIS (later)
 + No letter can be used twice (no way to check this at the moment)
 + Add Timer so program has the game aspect (update after every word entered by seconds elapsed)
+*/
+
+/* Issues/Improvements made on 18th oct by Nishant
+ 1) Added the letter repeat condition check
 
 */
 
@@ -28,10 +33,12 @@ using namespace std;
 void printMenu();
 void printInstructions();
 void randomizeBoard(char gameTable[]);
+void shuffleBoard(char gameTable[]);
 void printBoard(char gameTable[]);
 void startGame(char gameTable[]);
 bool checkMiddle(char gameTable[], string answer, int answerLength);
 bool checkDictionary(string answer, int answerLength);
+bool letterRepeat(char gameTable[], string answer);
 int addScore(int length);
 
 const int ARRAY_SIZE = 9;
@@ -117,6 +124,31 @@ void randomizeBoard(char gameTable[])
 	gameTable[4] = vowel[rand() % 5];
 }
 
+void shuffleBoard(char gameTable[])
+{
+    char middle = gameTable[4]; // holds the gameTable's middle value to preserve its postion
+    char temp; // to hold the a letter temporarily when shuffling
+    int randomNum; // holds the randomly generated number
+
+    srand(time(NULL));
+
+    // shuffles the entire board
+    for (int i = ARRAY_SIZE - 1; i > 0; i--){
+        randomNum = rand() % i;
+        temp = gameTable[i];
+        gameTable[i] = gameTable[randomNum];
+        gameTable[randomNum] = temp;
+    }
+
+    // finds the value originally in the middle and swaps it with the value currently in the middle
+    for(int index = 0; index < ARRAY_SIZE; index++){
+        if (gameTable[index] == middle){
+            gameTable[index] = gameTable[4];
+            gameTable[4] = middle;
+        }
+    }
+}
+
 // Print board
 void printBoard(char gameTable[])
 {
@@ -136,6 +168,7 @@ void printBoard(char gameTable[])
 void startGame(char gameTable[])
 {
 	bool inputIsValid = false;
+	bool letter_repeat = false;
 	string playerAnswer = " "; // hold player's answer
 	int score = 0; // variable hold player's score
 
@@ -145,7 +178,6 @@ void startGame(char gameTable[])
 	{
 
 		printBoard(gameTable);
-
 		cout << "Score: " << score << endl;
 		cout << "Instructions: [1], Shuffle: [2], Give Up: [3]" << endl // CHANGED: Reduced to one line for readability 11-14-16 :Kevin
 			//<< "2) Shuffle" << endl
@@ -155,6 +187,8 @@ void startGame(char gameTable[])
 		// Get player's answer
 		cin >> playerAnswer;
 
+
+
 		// If 1 is entered, print instructions
 		if (playerAnswer[0] == '1')
 		{
@@ -163,11 +197,12 @@ void startGame(char gameTable[])
 		// If 2 entered, shuffle the board
 		else if (playerAnswer[0] == '2')
 		{
-			randomizeBoard(gameTable);
+			shuffleBoard(gameTable);
 		}
 
 		// If a word is entered
 		else if (playerAnswer[0] != '3'){
+			letter_repeat = letterRepeat(gameTable, playerAnswer);
 			int answerLength = playerAnswer.size();
 			cout << "Answer length: " << answerLength << endl;
 			cout << "Player's answer: " << playerAnswer << endl;
@@ -180,9 +215,15 @@ void startGame(char gameTable[])
 				//10.14.16 This has been fixed
 				if (inputIsValid == false)
 				{
-					cout << endl << "Middle letter was not used. Try again." << endl << endl;
+					cout << endl << "Middle letter was not used. Try again.\n" << endl << endl;
 				}
-				else if (inputIsValid == true)
+				// changed
+				else if(letter_repeat == true)
+				{
+					cout << endl << "A letter has been repeated. Try again.\n" << endl;
+				}
+				// changed
+				else if (inputIsValid == true && letter_repeat == false)
 				{
 					inputIsValid = checkDictionary(playerAnswer, answerLength);
 					if (inputIsValid == true)
@@ -192,7 +233,7 @@ void startGame(char gameTable[])
 					}
 					else
 					{
-						cout << "Not a valid word" << endl << endl;
+						cout << endl << "Not a valid word" << endl << endl;
 					}
 				}
 			}
@@ -288,6 +329,38 @@ bool checkDictionary(string answer, int answerLength)
 	}
 
 	return false;
+}
+
+// Compares the number of each letter in the user's answer to the number of each letter in
+// the gameTable. Returns true if answer has more of any letter than gameTable.
+bool letterRepeat(char gameTable[], string answer)
+{
+    bool repeat = false;
+    int answerArray[26] = {0}, gameBoardArray[26] = {0};
+
+
+    for(int letter = 65; letter < 65 + 26; letter++)
+    {
+        for(int i = 0; i < answer.length(); i++)
+        {
+            if (letter == answer[i] || letter + 32 == answer[i])
+                answerArray[letter - 65]++;
+        }
+
+        for(int j = 0; j < ARRAY_SIZE; j++)
+        {
+            if (letter == gameTable[j])
+                gameBoardArray[letter - 65]++;
+        }
+    }
+
+    for(int k = 0; k < 26; k++)
+    {
+        if(answerArray[k] > gameBoardArray[k])
+            repeat = true;
+    }
+
+    return repeat;
 }
 
 int addScore(int length)
