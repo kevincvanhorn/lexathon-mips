@@ -56,7 +56,7 @@ shuffleBoard: # void shuffleBoard( char gameTable[] )
 FixMiddle:
 	slti $t0, $t1, 9	# while(i < 9) $s0 = 1
 	li $t2, 1		# $s2 = 1 in order to compare with $s0
-	bne $t0, $t2, printBoard	# if i >= 9, exit loop
+	bne $t0, $t2, Exit	# if i >= 9, exit loop
 	
 	add $t5, $t4, $t1	# adjustableBase = base + i
 	lb $t6, 0($t5)		# tempStorage = gameTable[i]
@@ -76,5 +76,7 @@ FixMiddle:
 	addi $t1, $t1, 1	# i++
 	
 	j FixMiddle
+
+Exit: jr $ra
 
 #****************************************************************
