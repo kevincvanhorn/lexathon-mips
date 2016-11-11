@@ -1,3 +1,4 @@
+.text
 #****************************************************************
 shuffleBoard: # void shuffleBoard( char gameTable[] )
 #**************
