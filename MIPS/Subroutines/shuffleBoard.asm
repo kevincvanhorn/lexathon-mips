@@ -14,7 +14,7 @@ shuffleBoard: # void shuffleBoard( char gameTable[] )
 # t6 - tempStorage: temp2
 # t7 - middle: used to hold the middle value of the array
 #**************
-
+shuffleBoard:
 	add $t4, $a0, $zero	# $s4 = gameTable address
 	
 	addi $t5, $t4, 4	# adjustableBase = base + 4
