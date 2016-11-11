@@ -1,0 +1,25 @@
+.text
+
+#****************************************************************
+# addScore: # int addScore( int length )
+#**************
+# Takes the user's word's length as an argument and returns (length * 5) as the score 
+#
+# Register Usage:
+# $t0 - holds length
+# $t1 - holds 5
+# $t2 - holds length * 5
+#**************
+
+addScore:
+	add $t0, $a0, $zero
+	
+	li $t1, 5
+	
+	mult $t0, $t1
+	mflo $t2
+	
+	add $v0, $t2, $zero
+	
+	jr $ra
+#****************************************************************
