@@ -1,0 +1,114 @@
+	.data
+	# Global Vars
+answer:	.space 10
+gameTableArray: .space 26
+answerArray: .space 26
+
+	.text
+	
+#****************************************************************
+letterRepeat: # bool letterRepeat( char gameTable[], string answer )
+#**************
+# Scans through answer and gameTable to see if answer has more of any letter, returns false if so
+#
+# Register Usage:
+# $v0 - repeat: boolean return value
+# $a0 - gameTable base
+# $a1 - answer base
+# $a2 - adjustableGameTable: gameTable + offset
+# $a3 - adjustableAnswer: answer + offset
+# $t0 - gameTableArray base
+# $t1 - answerArray base
+# $t2 - adjustableGameTableArray: gameTableArray + offset
+# $t3 - adjustableAnswerArray: answerArray + offset
+# $t4 - 9: for use in loops
+# $t5 - temp
+# $t6 - i: used in bigForLoop
+# $t7 - letter: an offset of i (i + 65 or i + 97) used to compare to ASCII's
+# $t8 - j: used in smallForLoop
+# $t9 - 26: for use in loops
+#**************
+
+	li $v0, 0	# bool repeat = false
+	la $a0, gameTable
+	la $a1, answer
+	la $t0, gameTableArray
+	la $t1, answerArray
+
+	addi $t9, $zero, 26	# $t7 = 26
+	add $t6, $zero, $zero	# i = $t6 = 0
+	
+	
+initArrays: beq $t6, $t9, initArraysDone	# while i < 26
+	
+	add $t2, $t0, $t6	# sets value in gameTableArray to zero
+	sb $zero, 0($t2)
+	
+	add $t3, $t1, $t6	# sets value in answerArray to zero
+	sb $zero, 0($t3)
+	
+	addi $t6, $t6, 1	# i++
+	j initArrays
+	j printBoard
+initArraysDone:
+	add $t6, $zero, $zero	# i = 0
+	addi $t4, $zero, 9	# $t4 = 9 for use in smallForLoop
+	
+bigForLoop: beq $t6, $t9, bigForLoopEnd	# while i < 26
+	
+	add $t8, $zero, $zero	# j = 0
+	
+	smallForLoop: beq $t8, $t4, smallForLoopEnd
+		addi $t7, $t6, 65	# letter = i + 65
+		
+		add $a2, $a0, $t8	# adjustableGameTable = gameTable + j
+		lb $t5, 0($a2)		# temp = gameTable[j]
+		
+		bne $t5, $t7, nextTest	# if ( temp = gameTable[j] == letter )
+					#{
+		add $t2, $t0, $t6		# adjustableGameTableArray = gameTableArray + i
+		lb $t5, 0($t2)			# temp = gameTableArray[i]
+		addi $t5, $t5, 1		# temp++
+		sb $t5, 0($t2)			# gameTableArray[i] = temp = gameTableArray[i]++
+					#}
+		nextTest:
+		add $a3, $a1, $t8	# adjustableAnswer = answer + j
+		lb $t5, 0($a3)		# temp = answer[j]
+		
+		bne $t5, $t7, notEquals	# if ( temp = answer[j] == letter )
+					#{
+		add $t3, $t1, $t6		# adjustableAnswerArray = answerArray + i
+		lb $t5, 0($t3)			# temp = answerArray[i]
+		addi $t5, $t5, 1		# temp++
+		sb $t5, 0($t3)			# gameTableArray[i] = temp = gameTableArray[i]++
+					#}
+		notEquals:		# else
+		add $t8, $t8, 1		# j++
+		j smallForLoop
+		
+	smallForLoopEnd:
+	addi $t6, $t6, 1	# i++
+	j bigForLoop
+	
+bigForLoopEnd:
+	add $t6, $zero, $zero	# i = 0
+	
+compare: beq $t6, $t9, letterRepeatEnd	# while ( i < 26 )
+	add $t2, $t0, $t6	# adjustableGameTableArray = gameTableArray + i
+	lb $a2, 0($t2)		# $a2 = gameTableArray[i]
+	
+	add $t3, $t1, $t6	#adjustableAnswerArray = answerArray + i
+	lb $a3, 0($t3)		# $a3 = answerArray[i]
+	
+	slt $t5, $a2, $a3	# if ( gameTableArray[i] < answerArray[i] ) temp = 1;
+	beq $t5, $zero, repeatFalse	# if ( temp != 0)
+	li $v0, 1			# repeat = true
+	
+	repeatFalse:			# else do nothing
+	
+	addi $t6, $t6, 1		# i++
+	j compare
+	
+letterRepeatEnd: jr $ra
+
+#****************************************************************
