@@ -1,6 +1,6 @@
 .text
 #****************************************************************
-shuffleBoard: # void shuffleBoard( char gameTable[] )
+#shuffleBoard: # void shuffleBoard( char gameTable[] )
 #**************
 # Shuffles the contents of gameTable[], making sure to replace gameTable[4] at the end
 #
@@ -15,6 +15,7 @@ shuffleBoard: # void shuffleBoard( char gameTable[] )
 # t7 - middle: used to hold the middle value of the array
 #**************
 shuffleBoard:
+	la $a0 gameTable
 	add $t4, $a0, $zero	# $s4 = gameTable address
 	
 	addi $t5, $t4, 4	# adjustableBase = base + 4
