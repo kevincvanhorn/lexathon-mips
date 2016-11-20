@@ -1,7 +1,7 @@
 .data
-fin: .asciiz "Dictionary.txt" #filename for input
-buffer: .space 300 # initial storage of file (charcount+newlines+wordcount)
-bufferArray: .space 280 # number of bytes in array (10 * english words)
+fin: .asciiz "LexathonDictionary.txt" #filename for input
+buffer: .space 8000 # initial storage of file (charcount+newlines+wordcount)
+bufferArray: .space 10000 # number of bytes in array (10 * english words)
 .text
 
 #****************************************************************
@@ -34,7 +34,7 @@ move $s6, $v0 # save the file descriptor
 li $v0, 14 # system call for read from file
 move $a0, $s6 # file descriptor
 la $a1, buffer # address of buffer from which to read
-li $a2, 300 # hardcoded buffer length
+li $a2, 8000 # hardcoded buffer length
 syscall # read from file
 
 # close the file
@@ -43,24 +43,26 @@ move $a0, $s6 # file descriptor to close
 syscall # close file
 #------------------------------------------------------------------------
 
+
 #-----Load from buffer into array
 la $t2, buffer # address of buffer into $t2
 la $t6, bufferArray # address of buffer into $t6
 add $t1, $zero, $zero # wordCount = 0
 
 WordCountWhile: # Store words in array until wordCount is 28
-slti $t0, $t1, 28 # t0 is 1 if wordCount < 28
+slti $t0, $t1, 1000 # t0 is 1 if wordCount < 1000
 bne $t0, 1, WordCountExit
 
 add $t7, $zero, $zero # current WordLength = 0
 WordElementWhile:# While(i <= 10)) - Loop through 10 bytes, setting array elements to buffer elts
-slti $t0, $t7, 11 # i < 11
+slti $t0, $t7, 9 # i < 11
 bne $t0, 1, WordElementExit
 lb $t3, ($t2) # $t3 has current element of buffer
 
 # If current char != newline char
 beq $t3, 10, WordElementIfExit # 10 is newLine char
 sb $t3, ($t6) # store current buffer elt into current array location
+
 addi $t2, $t2, 1 # only iterate buffer elt when \n is not the current char
 WordElementIfExit:
 addi $t7, $t7, 1 # iterate i
@@ -71,14 +73,20 @@ j WordElementWhile
 WordElementExit:
 
 addi $t2, $t2, 1 # iterate to next address of buffer to skip \n 
+addi $t6, $t6, 1 # iterate to next address of array b/c it is currently one behind due to i <
 addi $t1, $t1, 1 # increment wordCount - a dictionary worrd has been stored in bufferArray
 
 j WordCountWhile
 WordCountExit:
 
-jr $ra
+#jr $ra
 #****************************************************************
 
+
+#add $t9, $zero, 8000
+#li $v0, 11
+#lb $a0, bufferArray($t9)
+#yscall
 
 
 
@@ -90,9 +98,10 @@ jr $ra
 #$t1 - i
 #$t2 - current address through bufferArray
 la $t2, bufferArray
+add $t1, $zero, $zero
 printLoop:
-j PrintExit
-slti $t0, $t1, 280 #while i < 280
+#j PrintExit # Remove for disable
+slti $t0, $t1, 10000 #while i < 280
 bne $t0, 1, PrintExit
 
 li $v0, 11
