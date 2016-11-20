@@ -535,7 +535,7 @@ count
 square
 reason
 length
-represent
+represen
 art
 subject
 region
@@ -572,7 +572,6 @@ winter
 sat
 written
 wild
-instrument
 kept
 glass
 grass
@@ -610,7 +609,7 @@ metal
 whether
 push
 seven
-paragraph
+paragrap
 third
 shall
 held
@@ -663,9 +662,9 @@ spring
 observe
 child
 straight
-consonant
+consonan
 nation
-dictionary
+dictiona
 milk
 speed
 method
@@ -684,7 +683,7 @@ cool
 design
 poor
 lot
-experiment
+experime
 bottom
 key
 iron
@@ -752,7 +751,7 @@ woman
 captain
 practice
 separate
-difficult
+difficul
 doctor
 please
 protect
@@ -760,7 +759,7 @@ noon
 whose
 locate
 ring
-character
+characte
 insect
 caught
 period
@@ -798,7 +797,7 @@ soldier
 process
 operate
 guess
-necessary
+necessar
 sharp
 wing
 create
@@ -855,7 +854,7 @@ success
 company
 subtract
 event
-particular
+particul
 deal
 swim
 term
@@ -869,7 +868,7 @@ camp
 invent
 cotton
 born
-determine
+determin
 quart
 nine
 truck
@@ -896,7 +895,7 @@ nose
 plural
 anger
 claim
-continent
+continen
 oxygen
 sugar
 death
@@ -911,7 +910,7 @@ thank
 branch
 match
 suffix
-especially
+especial
 fig
 afraid
 huge
@@ -921,7 +920,7 @@ discuss
 forward
 similar
 guide
-experience
+experien
 score
 apple
 bought
@@ -936,7 +935,7 @@ slip
 win
 dream
 evening
-condition
+conditio
 feed
 tool
 total
@@ -953,7 +952,7 @@ parent
 shore
 division
 sheet
-substance
+substanc
 favor
 connect
 post
@@ -998,3 +997,4 @@ teeth
 shell
 neck
 apple
+turnip
