@@ -73,7 +73,8 @@
 		#syscall
 	####################### test checkmiddle #############################	
 		
-		
+
+#****************************************************************		
 # checkmiddle subroutine accepts three arguments: 
 # gameTable which is an array of 9 characters - $a0
 # userinput which is the answer the user enters - $a1
@@ -90,7 +91,10 @@
 # 0 1 2
 # 3 4 5 
 # 6 7 8
+#**************
 checkmiddle:
+#
+#
 # return value $v0 = -1, initially
 # return 0 if middle letter is used, return -1 if not used
 
@@ -126,5 +130,6 @@ jr $ra
  
 exit:
 jr $ra
+#****************************************************************
 
 		
