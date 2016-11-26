@@ -50,6 +50,7 @@ pEnterWord: .asciiz "Enter word: "
 pPrintMenu3: .asciiz "\n1)Enter word \n2)Instructions \n3)Shuffle \n4)End game "
 pSeparator: .asciiz "\n---------------------------------------------------------------------------------\n"
 pStartGame_Score: .asciiz "\nScore: "	
+pEndGameScore: .asciiz "\nGAME OVER! Final Score: "
 			
 	.text
 main:
@@ -465,6 +466,12 @@ checkDictionary: # boolean checkDictionary()
 		
 		li $t0, 1 # return 1
 		move $v0, $t0
+		
+		li $t1, 5
+		mult $s0, $t1
+		mflo $t2
+		add $s4, $s4, $t2
+		
 		j checkDictionaryExit
 #--------------------------------------------------------------------------------------------------------------
 	# If no matches found 
@@ -679,5 +686,13 @@ printInstructions:
 	jr $ra
 			
 Exit:
+	li $v0, 4
+	la $a0, pEndGameScore
+	syscall
+	
+	li $v0, 1,
+	la $a0, ($s4)
+	syscall
+	
 	li $v0, 10 #Exit Syscall
 	syscall
