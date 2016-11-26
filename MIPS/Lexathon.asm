@@ -47,7 +47,8 @@ pStartGamePrompt: .asciiz "Input: "
 pEnterWord: .asciiz "Enter word: "
 pPrintMenu3: .asciiz "\n1)Enter word \n2)Instructions \n3)Shuffle \n4)End game "
 pSeparator: .asciiz "\n---------------------------------------------------------------------------------\n"
-		
+pStartGame_Score: .asciiz "\nScore: "	
+			
 	.text
 main:
 	jal loadDictionary
@@ -378,6 +379,8 @@ checkDictionary: # boolean checkDictionary()
 # _ _ _ _ _ _ _ _ _ words less than total array size is padded with \n and then \0 if remaining placyes are empty e.g. inputting 'stupid' -> stupid\n\0\0
 #------loop through the dictionary; load player's answer element and dictionary letters and check to see if they match-------
 	
+	jal checkMiddle
+	
 	move $s0, $v0 # move argument from player answer length into register
 	
 	la $a0, playerAnswer # load address of player's answer 
@@ -481,7 +484,16 @@ startGame: #void startGame()
 
 # Register usage
 # $a0 -  holds player's decision and answer
+# $s2
+# $t0 - bool inputIsValid (1 = true)
+# $t1 - bool letter_repeat
+# $s4 - score
 #**************
+
+	#init vars
+	li $t0, 0
+	li $t0, 0
+	li $s4, 0
 
 	# Set up the board
 	jal randomizeBoard 
@@ -492,6 +504,7 @@ startGame: #void startGame()
 	jal pNew_Line # print a newline char
 	
 	jal printBoard  # Print the board
+	jal printScore # Print the score
 	
 	li $v0, 4 # Call "print string" syscall and print instructions
 	la $a0, pPrintMenu3
@@ -565,11 +578,77 @@ startGame: #void startGame()
 		j Exit
 #**********************************************************************************
 
+#****************************************************************		
+# checkmiddle subroutine accepts three arguments: 
+# gameTable which is an array of 9 characters - $a0
+# userinput which is the answer the user enters - $a1
+# answer length - $a2
+# $t1 = gameTable[4]
+# $t2 = first letter in answer (changes every iteration) (contains the byte)
+# $t3 = index (0 initially)
+# $t4 = answer length
+# $t5 = points to first letter in answer (changes every iteration) (contains address)
+# $t5 is incremented by 1 every iteration, and the letter it points to is stored in $t2
+
+# table position (middle letter position) = 4
+# table positions
+# 0 1 2
+# 3 4 5 
+# 6 7 8
+#**************
+checkmiddle:
+#
+#
+# return value $v0 = -1, initially
+# return 0 if middle letter is used, return -1 if not used
+addi $a0, $a0, 4
+lb $t1, ($a0)
+		
+la $t5, ($a1) # $t5 points to position 0 in userinput
+addi $t3, $zero, 0
+# store answer length in $t4
+addi $t4, $a2, 0
+
+while:
+# if index >= answerlength, exit
+bge $t3, $t4, exit
+lb $t2, ($t5) # set $t2 to next letter in user input
+
+beq $t1, $t2, else
+addi $t3, $t3, 1 #index++
+addi $t5, $t5, 1 # point to next letter in user input
+addi $v0, $zero, -1
+j while
+
+else:
+addi $v0, $zero, 0 # middle letter is used, set $v0 = 0
+jr $ra
+ 
+exit:
+jr $ra
+#****************************************************************
+
+printScore:
+	addi $v0, $zero, 4 # Load "print string" SYSCALL service into revister $v0
+	la $a0, pStartGame_Score # Load argument value, to print, into $a0
+	syscall
+	
+	addi $v0, $zero, 1 # Load "print int" SYSCALL service into revister $v0
+	la $a0, ($s4) # Print Score
+	syscall
+	
+	addi $v0, $zero, 4 # Load "print string" SYSCALL service into revister $v0
+	la $a0, pNewLine # Load argument value, to print, into $a0
+	syscall
+	
+	jr $ra
+
 pNew_Line:
 # Print pPrintInstructions
 	addi $v0, $zero, 4 # Load "print string" SYSCALL service into revister $v0
 	la $a0, pNewLine # Load argument value, to print, into $a0
 	syscall
+	
 	jr $ra
 	
 pSeparator_:
