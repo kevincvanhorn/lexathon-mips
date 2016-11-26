@@ -28,7 +28,6 @@ vowels: .byte 'A', 'E', 'I', 'O', 'U'
 # printBoard Global Vars
 pPrintBoard1: .asciiz "| "
 pPrintBoard2: .asciiz " | "
-pERROR: .asciiz "RANDOM"
 
 # loadDictionary Variables
 fin: .asciiz "LexathonDictionary.txt" #filename for input
@@ -43,7 +42,7 @@ pCheckingDictionary: .asciiz "\nChecking dictionary...\n"
 pWordFound: .asciiz "\nWord found!\n"
 pWordNotFound: .asciiz "\nWord not found...\n"
 pNotValid: .asciiz "\nAnswer not valid. Must be between 3-9 char.\n"
-pNotInMiddle: .asciiz "\nERROR: Middle Letter not used - Try Again\n"
+pNotInMiddle: .asciiz "\nERROR: Invalid Word - Try Again\n"
 
 # startGame Global Vars
 pStartGamePrompt: .asciiz "Choose Option: "
@@ -184,11 +183,6 @@ randomizeBoard: #void randomizeBoard()
 #**************
 
 # initialize vars
-
-	li $v0, 4
-	la, $a0, pERROR
-	syscall
-
 	add $t0, $zero, $zero # init index to 0
 	la $t2, gameTable # load gameTable[] into $t2
 	
