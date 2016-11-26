@@ -28,11 +28,13 @@ vowels: .byte 'A', 'E', 'I', 'O', 'U'
 # printBoard Global Vars
 pPrintBoard1: .asciiz "| "
 pPrintBoard2: .asciiz " | "
+pERROR: .asciiz "RANDOM"
 
 # loadDictionary Variables
 fin: .asciiz "LexathonDictionary.txt" #filename for input
 buffer: .space 8000 # initial storage of file (charcount+newlines+wordcount)
 bufferArray: .space 10000 # number of bytes in array (10 * english words)
+
 # checkDictionary Variables
 playerAnswer: .space 9
 pWordLength: .asciiz "\nWord length is: "
@@ -41,9 +43,10 @@ pCheckingDictionary: .asciiz "\nChecking dictionary...\n"
 pWordFound: .asciiz "\nWord found!\n"
 pWordNotFound: .asciiz "\nWord not found...\n"
 pNotValid: .asciiz "\nAnswer not valid. Must be between 3-9 char.\n"
+pNotInMiddle: .asciiz "\nERROR: Middle Letter not used - Try Again\n"
 
 # startGame Global Vars
-pStartGamePrompt: .asciiz "Input: "
+pStartGamePrompt: .asciiz "Choose Option: "
 pEnterWord: .asciiz "Enter word: "
 pPrintMenu3: .asciiz "\n1)Enter word \n2)Instructions \n3)Shuffle \n4)End game "
 pSeparator: .asciiz "\n---------------------------------------------------------------------------------\n"
@@ -52,7 +55,7 @@ pStartGame_Score: .asciiz "\nScore: "
 	.text
 main:
 	jal loadDictionary
-	jal printMenu
+	j printMenu
 
 #****************************************************************
 printMenu: #void printMenu()
@@ -162,7 +165,7 @@ printBoardLoopEnd:
 	j printBoardLoop
 	
 printBoardLoopReturn:
-	# jr $ra
+	jr $ra
 #****************************************************************
 
 #****************************************************************
@@ -181,6 +184,11 @@ randomizeBoard: #void randomizeBoard()
 #**************
 
 # initialize vars
+
+	li $v0, 4
+	la, $a0, pERROR
+	syscall
+
 	add $t0, $zero, $zero # init index to 0
 	la $t2, gameTable # load gameTable[] into $t2
 	
@@ -212,7 +220,7 @@ randomizeBoardLoopEnd:
 	syscall # stored in $a0
 	add $t3, $a0, $zero
 	div $t3, $t3, 5 # range of random int = 1-5
-	mfhi $t3	
+	mfhi $t3
 	abs $t3, $t3
 	
 	la $t5, vowels # starting address of vowels[]
@@ -379,12 +387,23 @@ checkDictionary: # boolean checkDictionary()
 # _ _ _ _ _ _ _ _ _ words less than total array size is padded with \n and then \0 if remaining placyes are empty e.g. inputting 'stupid' -> stupid\n\0\0
 #------loop through the dictionary; load player's answer element and dictionary letters and check to see if they match-------
 	
-	jal checkMiddle
-	
 	move $s0, $v0 # move argument from player answer length into register
 	
 	la $a0, playerAnswer # load address of player's answer 
 	la $a1, bufferArray # load address of dictionary array
+	
+	#Check Middle -----------------------------------------------
+	j checkMiddle
+	checkMiddleExit:
+	
+	beq $v0, 1, continue # Check if middle letter is in answer
+	# Not in Middle
+	li $v0, 4
+	la $a0, pNotInMiddle
+	syscall
+	j checkDictionaryExit
+	#-------------------------------------------------------------
+	continue:
 	
 	la $t4, ($a1) # load address of dictionary array; $t4 <- bufferArray address
 	
@@ -596,18 +615,19 @@ startGame: #void startGame()
 # 3 4 5 
 # 6 7 8
 #**************
-checkmiddle:
+checkMiddle:
 #
 #
 # return value $v0 = -1, initially
 # return 0 if middle letter is used, return -1 if not used
-addi $a0, $a0, 4
-lb $t1, ($a0)
+la $t0, gameTable
+lb $t1, 4($t0) # t1 has the middle char
+addi $t1, $t1, 32 # to CAPS
 		
-la $t5, ($a1) # $t5 points to position 0 in userinput
-addi $t3, $zero, 0
+la $t5, ($a0) # $t5 points to position 0 in userinput
+li $t3, 0
 # store answer length in $t4
-addi $t4, $a2, 0
+addi $t4, $s0, 0
 
 while:
 # if index >= answerlength, exit
@@ -617,15 +637,14 @@ lb $t2, ($t5) # set $t2 to next letter in user input
 beq $t1, $t2, else
 addi $t3, $t3, 1 #index++
 addi $t5, $t5, 1 # point to next letter in user input
-addi $v0, $zero, -1
+li $v0, 0
 j while
 
 else:
-addi $v0, $zero, 0 # middle letter is used, set $v0 = 0
-jr $ra
+addi $v0, $zero, 1 # middle letter is used, set $v0 = 0
  
 exit:
-jr $ra
+j checkMiddleExit
 #****************************************************************
 
 printScore:
