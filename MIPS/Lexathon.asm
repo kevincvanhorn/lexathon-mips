@@ -1,6 +1,6 @@
 # LEXATHON PROJECT
-# @author	Marco (), Nishant Gurrapadi (), 
-#		Thach Ngo (), Kevin VanHorn (kcv150030)
+# @author	Kevin VanHorn (kcv150030), Nishant Gurrapadi (), 
+#		Thach Ngo (), 
 # Course: 	CS3340.50 Professor Nhut Nguyen
 # Due: 1 December, 2016
 #
@@ -14,7 +14,6 @@
 # Global Vars
 pNewLine: .asciiz "\n"
 gameTable:  .space 9 # space for 9 bytes: each byte is a character
-#answer: .byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 # zero is null terminator
 
 # PrintMenu Global Vars
 pPrintMenu1: .asciiz "Welcome to Lexathon!\n\n"
@@ -30,11 +29,10 @@ vowels: .byte 'A', 'E', 'I', 'O', 'U'
 pPrintBoard1: .asciiz "| "
 pPrintBoard2: .asciiz " | "
 
-# loadDictionary Global Vars
+# loadDictionary Variables
 fin: .asciiz "LexathonDictionary.txt" #filename for input
 buffer: .space 8000 # initial storage of file (charcount+newlines+wordcount)
 bufferArray: .space 10000 # number of bytes in array (10 * english words)
-
 # checkDictionary Variables
 playerAnswer: .space 9
 pWordLength: .asciiz "\nWord length is: "
@@ -42,22 +40,17 @@ pCheckWord: .asciiz "\nEnter a word to check: "
 pCheckingDictionary: .asciiz "\nChecking dictionary...\n"
 pWordFound: .asciiz "\nWord found!\n"
 pWordNotFound: .asciiz "\nWord not found...\n"
-pNotValid: .asciiz "\nAnswer not valid. Must be between 4-9 char.\n"
+pNotValid: .asciiz "\nAnswer not valid. Must be between 3-9 char.\n"
 
 # startGame Global Vars
 pStartGamePrompt: .asciiz "Input: "
 pEnterWord: .asciiz "Enter word: "
 pPrintMenu3: .asciiz "\n1)Enter word \n2)Instructions \n3)Shuffle \n4)End game "
 pSeparator: .asciiz "\n---------------------------------------------------------------------------------\n"
-	
-# letterRepeat Global Vars
-answer:	.space 10
-gameTableArray: .space 26
-answerArray: .space 26
-
 		
 	.text
 main:
+	jal loadDictionary
 	jal printMenu
 
 #****************************************************************
@@ -230,33 +223,9 @@ randomizeBoardLoopEnd:
 #****************************************************************
 
 #****************************************************************
-# addScore: # int addScore( int length )
-#**************
-# Takes the user's word's length as an argument and returns (length * 5) as the score 
-#
-# Register Usage:
-# $t0 - holds length
-# $t1 - holds 5
-# $t2 - holds length * 5
-#**************
-
-addScore:
-	add $t0, $a0, $zero
-	
-	li $t1, 5
-	
-	mult $t0, $t1
-	mflo $t2
-	
-	add $v0, $t2, $zero
-	
-	jr $ra
-#****************************************************************
-
-#****************************************************************
 loadDictionary: #void loadDictionary()
 #**************
-# raises baseparam ($a0) to the power of exponentparam ($a1)
+# 
 #
 #
 # Register usage (after loading file)
@@ -328,90 +297,7 @@ addi $t1, $t1, 1 # increment wordCount - a dictionary worrd has been stored in b
 j WordCountWhile
 WordCountExit:
 
-jr $ra 
-#****************************************************************
-
-#****************************************************************
-#shuffleBoard: # void shuffleBoard( char gameTable[] )
-#**************
-# Shuffles the contents of gameTable[], making sure to replace gameTable[4] at the end
-#
-# Register Usage:
-# t0 - for slt comparisons
-# t1 - i: for loops
-# t2 - randomNum
-# t3 - temp
-# t4 - gameTable base: referred to as just 'base'
-# t5 - adjustableBase: used to reference specific values in gameTable, always an offset of base
-# t6 - tempStorage: temp2
-# t7 - middle: used to hold the middle value of the array
-#**************
-shuffleBoard:
-	la $a0 gameTable
-	add $t4, $a0, $zero	# $s4 = gameTable address
-	
-	addi $t5, $t4, 4	# adjustableBase = base + 4
-	lb $t7, 0($t5)		# middle = gameTable[4]
-	
-	li $t1, 8	# i = 8
-
-	ForLoop:
-	slti $t0, $t1, 1	# if(i < 1) $s0 = 1
-	li $t2, 1		# $s2 = 1 in order to compare with $s0
-	beq $t0, $t2, FixMiddle	# if i = 0, exit loop
-	
-	# else
-	li $v0, 41
-	li $a0, 0
-	syscall	# generates random num stored in $a0
-	add $t2, $a0, $zero	# randomNum = rand()
-	
-	div $t2, $t2, $t1	# randomNum % i
-	mfhi $t2		# randomNum = randomNum % i
-	abs $t2, $t2
-	
-	add $t5, $t4, $t1	# adjustableBase($s5) = base + i
-	lb $t3, 0($t5)		# temp = gameTable[i]
-	
-	add $t5, $t4, $t2	# adjustableBase($s5) = base + randomNum
-	lb $t6, 0($t5)		# tempStorage($s6) = gameTable[randomNum]
-	
-	add $t5, $t4, $t1	# adjustableBase = base + 1
-	sb $t6, 0($t5)		# gameTable[i] = tempStorage = gameTable[randomNum]
-	
-	add $t5, $t4, $t2	# adjustableBase = base + randomNum
-	sb $t3, 0($t5)		# gameTable[randomNum] = temp
-	
-	addi $t1, $t1, -1	# i--
-	
-	j ForLoop
-	
-FixMiddle:
-	slti $t0, $t1, 9	# while(i < 9) $s0 = 1
-	li $t2, 1		# $s2 = 1 in order to compare with $s0
-	bne $t0, $t2, ShuffleBoardExit	# if i >= 9, exit loop
-	
-	add $t5, $t4, $t1	# adjustableBase = base + i
-	lb $t6, 0($t5)		# tempStorage = gameTable[i]
-	bne $t6, $t7, NotMiddleValue	# if (gameTable[i] == middle)
-				# then
-	addi $t5, $t4, 4	# adjustableBase = base + 4
-	lb $t3, 0($t5)		# temp = gameTable[4]
-	
-	add $t5, $t4, $t1	# adjustableBase = base + i
-	sb $t3, 0($t5)		# gameTable[i] = temp = gameTable[4]
-	
-	addi $t5, $t4, 4	# adjustableBase = base + 4
-	sb $t7, 0($t5)		# gameTable[4] = middle
-	
-	NotMiddleValue:			# else
-	
-	addi $t1, $t1, 1	# i++
-	
-	j FixMiddle
-
-ShuffleBoardExit: jr $ra
-
+jr $ra
 #****************************************************************
 
 #******************************************************************
@@ -458,7 +344,7 @@ getPlayerAnswerLength: # loop through player's answer to get length
 		la $a0, ($s0)
 		syscall
 		
-		slti $t0, $s0, 4
+		slti $t0, $s0, 3 # length of word
 		beq $t0, 1, notValidAnswer
 		
 		move $v0, $s0 # move length into return value
@@ -580,69 +466,14 @@ checkDictionary: # boolean checkDictionary()
 		jr $ra
 
 #---------------------------------------------------------------------------------------------------------------
+
+
 #******************************************************************************************************************
 
-#****************************************************************		
-# checkmiddle subroutine accepts three arguments: 
-# gameTable which is an array of 9 characters - $a0
-# userinput which is the answer the user enters - $a1
-# answer length - $a2
-# $t1 = gameTable[4]
-# $t2 = first letter in answer (changes every iteration) (contains the byte)
-# $t3 = index (0 initially)
-# $t4 = answer length
-# $t5 = points to first letter in answer (changes every iteration) (contains address)
-# $t5 is incremented by 1 every iteration, and the letter it points to is stored in $t2
-
-# table position (middle letter position) = 4
-# table positions
-# 0 1 2
-# 3 4 5 
-# 6 7 8
-#**************
-checkmiddle:
-#
-#
-# return value $v0 = -1, initially
-# return 0 if middle letter is used, return -1 if not used
-
-# $a0 points to position 4 in gameTable
-addi $a0, $a0, 4
-#$t1 = gametable[4]
-lb $t1, ($a0)
-		
-# $a1 points to position 0 in userinput (answer)
-la $t5, ($a1) # $t5 points to position 0 in userinput
-# index position starts at 0 ($t3)
-addi $t3, $zero, 0
-# store answer length in $t4
-addi $t4, $a2, 0
-
-while:
-# if index >= answerlength, exit
-bge $t3, $t4, exit
-# else, execute the following code
-# if gameTable[4] ($t1) = answer[i] ($t2), set $v0 = 0
-lb $t2, ($t5) # set $t2 to next letter in user input
-
-beq $t1, $t2, else
-addi $t3, $t3, 1 #index++
-addi $t5, $t5, 1 # point to next letter in user input
-addi $v0, $zero, -1
-j while
-
-#index++
-else:
-addi $v0, $zero, 0 # middle letter is used, set $v0 = 0
-jr $ra
- 
-exit:
-jr $ra
-#****************************************************************
 
 #****************************************************************
 startGame: #void startGame()
-#**************
+	#**************
 # When 1 is entered for player's choice 
 # this function is called to start the game
 # Sets up the board by randomizing it
@@ -734,113 +565,6 @@ startGame: #void startGame()
 		j Exit
 #**********************************************************************************
 
-#****************************************************************
-letterRepeat: # bool letterRepeat( char gameTable[], string answer )
-#**************
-# Scans through answer and gameTable to see if answer has more of any letter, returns false if so
-#
-# Register Usage:
-# $v0 - repeat: boolean return value
-# $a0 - gameTable base
-# $a1 - answer base
-# $a2 - adjustableGameTable: gameTable + offset
-# $a3 - adjustableAnswer: answer + offset
-# $t0 - gameTableArray base
-# $t1 - answerArray base
-# $t2 - adjustableGameTableArray: gameTableArray + offset
-# $t3 - adjustableAnswerArray: answerArray + offset
-# $t4 - 9: for use in loops
-# $t5 - temp
-# $t6 - i: used in bigForLoop
-# $t7 - letter: an offset of i (i + 65 or i + 97) used to compare to ASCII's
-# $t8 - j: used in smallForLoop
-# $t9 - 26: for use in loops
-#**************
-
-	li $v0, 0	# bool repeat = false
-	la $a0, gameTable
-	la $a1, answer
-	la $t0, gameTableArray
-	la $t1, answerArray
-
-	addi $t9, $zero, 26	# $t7 = 26
-	add $t6, $zero, $zero	# i = $t6 = 0
-	
-	
-initArrays: beq $t6, $t9, initArraysDone	# while i < 26
-	
-	add $t2, $t0, $t6	# sets value in gameTableArray to zero
-	sb $zero, 0($t2)
-	
-	add $t3, $t1, $t6	# sets value in answerArray to zero
-	sb $zero, 0($t3)
-	
-	addi $t6, $t6, 1	# i++
-	j initArrays
-	j printBoard
-initArraysDone:
-	add $t6, $zero, $zero	# i = 0
-	addi $t4, $zero, 9	# $t4 = 9 for use in smallForLoop
-	
-bigForLoop: beq $t6, $t9, bigForLoopEnd	# while i < 26
-	
-	add $t8, $zero, $zero	# j = 0
-	
-	smallForLoop: beq $t8, $t4, smallForLoopEnd
-		addi $t7, $t6, 65	# letter = i + 65
-		
-		add $a2, $a0, $t8	# adjustableGameTable = gameTable + j
-		lb $t5, 0($a2)		# temp = gameTable[j]
-		
-		bne $t5, $t7, nextTest	# if ( temp = gameTable[j] == letter )
-					#{
-		add $t2, $t0, $t6		# adjustableGameTableArray = gameTableArray + i
-		lb $t5, 0($t2)			# temp = gameTableArray[i]
-		addi $t5, $t5, 1		# temp++
-		sb $t5, 0($t2)			# gameTableArray[i] = temp = gameTableArray[i]++
-					#}
-		nextTest:
-		add $a3, $a1, $t8	# adjustableAnswer = answer + j
-		lb $t5, 0($a3)		# temp = answer[j]
-		
-		bne $t5, $t7, notEquals	# if ( temp = answer[j] == letter )
-					#{
-		add $t3, $t1, $t6		# adjustableAnswerArray = answerArray + i
-		lb $t5, 0($t3)			# temp = answerArray[i]
-		addi $t5, $t5, 1		# temp++
-		sb $t5, 0($t3)			# gameTableArray[i] = temp = gameTableArray[i]++
-					#}
-		notEquals:		# else
-		add $t8, $t8, 1		# j++
-		j smallForLoop
-		
-	smallForLoopEnd:
-	addi $t6, $t6, 1	# i++
-	j bigForLoop
-	
-bigForLoopEnd:
-	add $t6, $zero, $zero	# i = 0
-	
-compare: beq $t6, $t9, letterRepeatEnd	# while ( i < 26 )
-	add $t2, $t0, $t6	# adjustableGameTableArray = gameTableArray + i
-	lb $a2, 0($t2)		# $a2 = gameTableArray[i]
-	
-	add $t3, $t1, $t6	#adjustableAnswerArray = answerArray + i
-	lb $a3, 0($t3)		# $a3 = answerArray[i]
-	
-	slt $t5, $a2, $a3	# if ( gameTableArray[i] < answerArray[i] ) temp = 1;
-	beq $t5, $zero, repeatFalse	# if ( temp != 0)
-	li $v0, 1			# repeat = true
-	
-	repeatFalse:			# else do nothing
-	
-	addi $t6, $t6, 1		# i++
-	j compare
-	
-letterRepeatEnd: jr $ra
-
-#****************************************************************
-
 pNew_Line:
 # Print pPrintInstructions
 	addi $v0, $zero, 4 # Load "print string" SYSCALL service into revister $v0
@@ -853,8 +577,7 @@ pSeparator_:
 	addi $v0, $zero, 4 # Load "print string" SYSCALL service into revister $v0
 	la $a0, pSeparator # Load argument value, to print, into $a0
 	syscall
-	jr $ra	
-
+	jr $ra
 
 printInstructions:
 	# Print pPrintInstructions
