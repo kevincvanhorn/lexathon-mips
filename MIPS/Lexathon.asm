@@ -1,7 +1,7 @@
 # LEXATHON PROJECT
-# @author	Kevin VanHorn (kcv150030), Nishant Gurrapadi (), 
-#		Thach Ngo (), 
-# Course: 	CS3340.50 Professor Nhut Nguyen
+# @author	Kevin VanHorn (kcv150030), Nishant Gurrapadi (nxg153030), 
+#		Thach Ngo (tnn130130), Marco Serrano (mis140230)
+# Course: 	CS3340.501 Professor Nhut Nguyen
 # Due: 1 December, 2016
 #
 # Analysis:
