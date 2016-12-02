@@ -25,8 +25,8 @@ pPrintBoard2: .asciiz " | "
 
 # loadDictionary Variables
 fin: .asciiz "LexathonDictionary.txt" #filename for input
-buffer: .space 60000 # initial storage of file (charcount+newlines+wordcount)
-bufferArray: .space 58000 # number of bytes in array (10 * english words)
+buffer: .space 8000 # initial storage of file (charcount+newlines+wordcount)
+bufferArray: .space 10000 # number of bytes in array (10 * english words)
 
 # checkDictionary Variables
 playerAnswer: .space 9
@@ -45,16 +45,11 @@ pPrintMenu3: .asciiz "\n1)Enter word \n2)Instructions \n3)Shuffle \n4)End game "
 pSeparator: .asciiz "\n---------------------------------------------------------------------------------\n"
 pStartGame_Score: .asciiz "\nScore: "	
 pEndGameScore: .asciiz "\nGAME OVER! Final Score: "
-
-#TimeUp
-pTimeCur: .asciiz "Time Left:"
-pTimeUp: .asciiz "\n----TIME IS UP----\n"
 			
 	.text
 main:
 	jal loadDictionary
 	j printMenu
-	
 
 #****************************************************************
 printMenu: #void printMenu()
@@ -90,7 +85,6 @@ printMenu: #void printMenu()
 printMenuWhile:	
 	beq $t0, 3, Exit # while (choice != 3)
 	bne $t0, 1, printMenuElse # if (choice == 1)
-	jal storeInitialTime
 	jal startGame # startGame(gameTable);
 	add $t0, $zero, $zero # reset $v0 incase lingering from subroutine call
 printMenuElse:	
@@ -256,7 +250,7 @@ move $s6, $v0 # save the file descriptor
 li $v0, 14 # system call for read from file
 move $a0, $s6 # file descriptor
 la $a1, buffer # address of buffer from which to read
-li $a2, 60000 # hardcoded buffer length
+li $a2, 8000 # hardcoded buffer length
 syscall # read from file
 
 # close the file
@@ -272,7 +266,7 @@ la $t6, bufferArray # address of buffer into $t6
 add $t1, $zero, $zero # wordCount = 0
 
 WordCountWhile: # Store words in array until wordCount is 28
-slti $t0, $t1, 5800 # t0 is 1 if wordCount < 1000
+slti $t0, $t1, 1000 # t0 is 1 if wordCount < 1000
 bne $t0, 1, WordCountExit
 
 add $t7, $zero, $zero # current WordLength = 0
@@ -348,7 +342,7 @@ getPlayerAnswerLength: # loop through player's answer to get length
 		la $a0, ($s0)
 		syscall
 		
-		slti $t0, $s0, 4 # length of word
+		slti $t0, $s0, 3 # length of word
 		beq $t0, 1, notValidAnswer
 		
 		move $v0, $s0 # move length into return value
@@ -525,10 +519,6 @@ startGame: #void startGame()
 	
 	jal printBoard  # Print the board
 	jal printScore # Print the score
-	jal getCurTime # $s3 contains the seconds since the start of the game
-	
-	sge $t0, $s3, 60
-	beq $t0, 1, timeUp
 	
 	li $v0, 4 # Call "print string" syscall and print instructions
 	la $a0, pPrintMenu3
@@ -591,7 +581,7 @@ startGame: #void startGame()
 	goToRandomizeBoard:
 		addu $sp, $sp, -4 # Save argument on stack
 		sw $a0, 0($sp)
-		jal shuffleBoard
+		jal randomizeBoard
 		lw $a0, 0($sp)	# Restore argument
 		addu $sp, $sp, 4
 		
@@ -700,125 +690,3 @@ Exit:
 	
 	li $v0, 10 #Exit Syscall
 	syscall
-	
-#****************************************************************
-shuffleBoard: # void shuffleBoard( char gameTable[] )
-#**************
-# Shuffles the contents of gameTable[], making sure to replace gameTable[4] at the end
-#
-# Register Usage:
-# t0 - for slt comparisons
-# t1 - i: for loops
-# t2 - randomNum
-# t3 - temp
-# t4 - gameTable base: referred to as just 'base'
-# t5 - adjustableBase: used to reference specific values in gameTable, always an offset of base
-# t6 - tempStorage: temp2
-# t7 - middle: used to hold the middle value of the array
-#**************
-
-	#add $t4, $a0, $zero	# $s4 = gameTable address
-	la $t4, gameTable
-	
-	addi $t5, $t4, 4	# adjustableBase = base + 4
-	lb $t7, 0($t5)		# middle = gameTable[4]
-	
-	li $t1, 8	# i = 8
-
-	ForLoop:
-	slti $t0, $t1, 1	# if(i < 1) $s0 = 1
-	li $t2, 1		# $s2 = 1 in order to compare with $s0
-	beq $t0, $t2, FixMiddle	# if i = 0, exit loop
-	
-	# else
-	li $v0, 41
-	li $a0, 0
-	syscall	# generates random num stored in $a0
-	add $t2, $a0, $zero	# randomNum = rand()
-	
-	div $t2, $t2, $t1	# randomNum % i
-	mfhi $t2		# randomNum = randomNum % i
-	abs $t2, $t2
-	
-	add $t5, $t4, $t1	# adjustableBase($s5) = base + i
-	lb $t3, 0($t5)		# temp = gameTable[i]
-	
-	add $t5, $t4, $t2	# adjustableBase($s5) = base + randomNum
-	lb $t6, 0($t5)		# tempStorage($s6) = gameTable[randomNum]
-	
-	add $t5, $t4, $t1	# adjustableBase = base + 1
-	sb $t6, 0($t5)		# gameTable[i] = tempStorage = gameTable[randomNum]
-	
-	add $t5, $t4, $t2	# adjustableBase = base + randomNum
-	sb $t3, 0($t5)		# gameTable[randomNum] = temp
-	
-	addi $t1, $t1, -1	# i--
-	
-	j ForLoop
-	
-FixMiddle:
-	slti $t0, $t1, 9	# while(i < 9) $s0 = 1
-	li $t2, 1		# $s2 = 1 in order to compare with $s0
-	bne $t0, $t2, ShuffleDone	# if i >= 9, exit loop
-	
-	add $t5, $t4, $t1	# adjustableBase = base + i
-	lb $t6, 0($t5)		# tempStorage = gameTable[i]
-	bne $t6, $t7, NotMiddleValue	# if (gameTable[i] == middle)
-				# then
-	addi $t5, $t4, 4	# adjustableBase = base + 4
-	lb $t3, 0($t5)		# temp = gameTable[4]
-	
-	add $t5, $t4, $t1	# adjustableBase = base + i
-	sb $t3, 0($t5)		# gameTable[i] = temp = gameTable[4]
-	
-	addi $t5, $t4, 4	# adjustableBase = base + 4
-	sb $t7, 0($t5)		# gameTable[4] = middle
-	
-	NotMiddleValue:			# else
-	
-	addi $t1, $t1, 1	# i++
-	
-	j FixMiddle
-ShuffleDone: jr $ra
-
-#****************************************************************
-
-storeInitialTime: # Initital Time into $s1
-	li $v0, 30 # get system Time
-	syscall
-	div $a0, $a0, 1000 # miliseconds to seconds
-	add $s1, $a0, $zero # store time in $s1
-	jr $ra		
-	
-getCurTime: # Current Time into $s3
-	li $v0, 30
-	syscall
-	div $a0, $a0, 1000 #milliseconds to seconds	
-	sub $s3, $a0, $s1 #find difference in current time and initial time (in seconds)
-	
-	
-	li $v0, 4
-	la $a0, pTimeCur
-	syscall
-	
-	li $t1, 60
-	sub $a0, $t1, $s3 # time left into $a0
-	
-	li $v0, 1 # Print Time Left
-	syscall
-	
-	addi $v0, $zero, 4 # Load "print string" SYSCALL service into revister $v0
-	la $a0, pNewLine # Load argument value, to print, into $a0
-	syscall
-	
-	#li $v0, 1 # SYSCALL 1: Print integer; print word length
-	#add $a0, $s3, $zero
-	#syscall
-	jr $ra
-	
-timeUp: # End Game if more than 60 seconds pass
-	li $v0, 4
-	la $a0, pTimeUp
-	syscall
-	
-j Exit	
